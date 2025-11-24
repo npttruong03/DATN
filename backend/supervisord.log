@@ -1,0 +1,126 @@
+2025-11-24 04:15:11,866 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 04:15:11,875 INFO supervisord started with pid 1
+2025-11-24 04:15:12,888 INFO spawned: 'php-fpm' with pid 7
+2025-11-24 04:15:12,895 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 04:15:13,920 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:15:13,922 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:19:25,263 WARN received SIGQUIT indicating exit request
+2025-11-24 04:19:25,266 INFO waiting for php-fpm, queue-worker to die
+2025-11-24 04:19:26,273 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 04:19:26,282 INFO stopped: php-fpm (exit status 0)
+2025-11-24 04:23:59,597 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 04:23:59,603 INFO supervisord started with pid 1
+2025-11-24 04:24:00,612 INFO spawned: 'php-serve' with pid 7
+2025-11-24 04:24:00,616 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 04:24:01,618 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:24:01,619 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:30:30,425 WARN received SIGTERM indicating exit request
+2025-11-24 04:30:30,426 INFO waiting for php-serve, queue-worker to die
+2025-11-24 04:30:30,432 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 04:30:30,437 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 04:30:31,998 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 04:30:32,005 INFO supervisord started with pid 1
+2025-11-24 04:30:33,012 INFO spawned: 'php-serve' with pid 7
+2025-11-24 04:30:33,017 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 04:30:34,020 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:30:34,020 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:33:16,164 WARN received SIGTERM indicating exit request
+2025-11-24 04:33:16,165 INFO waiting for php-serve, queue-worker to die
+2025-11-24 04:33:16,168 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 04:33:16,172 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 04:33:16,994 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 04:33:17,000 INFO supervisord started with pid 1
+2025-11-24 04:33:18,013 INFO spawned: 'php-serve' with pid 7
+2025-11-24 04:33:18,018 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 04:33:19,021 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 04:33:19,021 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:27:17,074 WARN received SIGTERM indicating exit request
+2025-11-24 05:27:17,079 INFO waiting for php-serve, queue-worker to die
+2025-11-24 05:27:18,086 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 05:27:18,091 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 05:30:18,997 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 05:30:19,006 INFO supervisord started with pid 1
+2025-11-24 05:30:20,013 INFO spawned: 'php-serve' with pid 7
+2025-11-24 05:30:20,020 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 05:30:21,023 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:30:21,024 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:31:27,746 WARN received SIGTERM indicating exit request
+2025-11-24 05:31:27,747 INFO waiting for php-serve, queue-worker to die
+2025-11-24 05:31:27,751 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 05:31:27,755 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 05:31:28,368 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 05:31:28,374 INFO supervisord started with pid 1
+2025-11-24 05:31:29,383 INFO spawned: 'php-serve' with pid 7
+2025-11-24 05:31:29,387 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 05:31:30,388 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:31:30,389 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:31:33,847 WARN received SIGTERM indicating exit request
+2025-11-24 05:31:33,848 INFO waiting for php-serve, queue-worker to die
+2025-11-24 05:31:33,852 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 05:31:33,857 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 05:34:28,398 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 05:34:28,405 INFO supervisord started with pid 1
+2025-11-24 05:34:29,411 INFO spawned: 'php-serve' with pid 7
+2025-11-24 05:34:29,417 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 05:34:30,422 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:34:30,424 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:41:20,175 WARN received SIGTERM indicating exit request
+2025-11-24 05:41:20,177 INFO waiting for php-serve, queue-worker to die
+2025-11-24 05:41:20,185 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 05:41:20,193 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 05:41:21,404 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 05:41:21,412 INFO supervisord started with pid 1
+2025-11-24 05:41:22,485 INFO spawned: 'php-serve' with pid 7
+2025-11-24 05:41:22,535 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 05:41:23,537 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:41:23,538 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:45:24,467 WARN received SIGTERM indicating exit request
+2025-11-24 05:45:24,468 INFO waiting for php-serve, queue-worker to die
+2025-11-24 05:45:25,475 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 05:45:25,503 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 05:53:11,155 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 05:53:11,160 INFO supervisord started with pid 1
+2025-11-24 05:53:12,167 INFO spawned: 'php-serve' with pid 7
+2025-11-24 05:53:12,173 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 05:53:13,176 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 05:53:13,176 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 06:14:03,932 WARN received SIGTERM indicating exit request
+2025-11-24 06:14:03,934 INFO waiting for php-serve, queue-worker to die
+2025-11-24 06:14:03,938 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 06:14:03,942 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 06:14:04,959 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 06:14:04,965 INFO supervisord started with pid 1
+2025-11-24 06:14:05,972 INFO spawned: 'php-serve' with pid 7
+2025-11-24 06:14:05,976 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 06:14:06,978 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 06:14:06,978 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 06:26:48,514 WARN received SIGTERM indicating exit request
+2025-11-24 06:26:48,515 INFO waiting for php-serve, queue-worker to die
+2025-11-24 06:26:48,518 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 06:26:48,523 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 06:26:49,852 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 06:26:49,861 INFO supervisord started with pid 1
+2025-11-24 06:26:50,868 INFO spawned: 'php-serve' with pid 8
+2025-11-24 06:26:50,875 INFO spawned: 'queue-worker' with pid 9
+2025-11-24 06:26:51,876 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 06:26:51,876 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 08:01:40,557 WARN received SIGTERM indicating exit request
+2025-11-24 08:01:40,580 INFO waiting for php-serve, queue-worker to die
+2025-11-24 08:01:40,603 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 08:01:40,630 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 08:05:33,770 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 08:05:33,785 INFO supervisord started with pid 1
+2025-11-24 08:05:34,800 INFO spawned: 'php-serve' with pid 7
+2025-11-24 08:05:34,811 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 08:05:35,814 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 08:05:35,815 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 08:47:11,414 WARN received SIGTERM indicating exit request
+2025-11-24 08:47:11,453 INFO waiting for php-serve, queue-worker to die
+2025-11-24 08:47:11,490 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 08:47:11,531 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-24 08:51:05,218 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-24 08:51:05,228 INFO supervisord started with pid 1
+2025-11-24 08:51:06,245 INFO spawned: 'php-serve' with pid 7
+2025-11-24 08:51:06,260 INFO spawned: 'queue-worker' with pid 8
+2025-11-24 08:51:07,263 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 08:51:07,274 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
