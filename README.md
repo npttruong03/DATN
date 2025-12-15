@@ -332,3 +332,8 @@ datn-summer2025/
 ```
 ## License
 Dự án được phát triển bởi DEVGANG và được cấp phép theo MIT License.
+
+
+rm -f public/storage && php artisan storage:link
+chown -R www-data:www-data /var/www/html/storage/app/public
+chmod -R 755 /var/www/html/storage/app/public

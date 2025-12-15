@@ -124,3 +124,27 @@
 2025-11-24 08:51:06,260 INFO spawned: 'queue-worker' with pid 8
 2025-11-24 08:51:07,263 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
 2025-11-24 08:51:07,274 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-24 09:38:30,432 WARN received SIGTERM indicating exit request
+2025-11-24 09:38:30,460 INFO waiting for php-serve, queue-worker to die
+2025-11-24 09:38:30,486 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-24 09:38:30,523 WARN stopped: php-serve (terminated by SIGTERM)
+2025-11-27 02:46:17,225 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-11-27 02:46:17,234 INFO supervisord started with pid 1
+2025-11-27 02:46:18,272 INFO spawned: 'php-serve' with pid 7
+2025-11-27 02:46:18,281 INFO spawned: 'queue-worker' with pid 8
+2025-11-27 02:46:19,284 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-27 02:46:19,285 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-11-27 04:13:42,517 WARN received SIGTERM indicating exit request
+2025-11-27 04:13:42,529 INFO waiting for php-serve, queue-worker to die
+2025-11-27 04:13:42,540 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-11-27 04:13:42,557 WARN stopped: php-serve (terminated by SIGTERM)
+2025-12-09 01:52:28,937 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-12-09 01:52:29,004 INFO supervisord started with pid 1
+2025-12-09 01:52:30,763 INFO spawned: 'php-serve' with pid 7
+2025-12-09 01:52:30,816 INFO spawned: 'queue-worker' with pid 8
+2025-12-09 01:52:31,825 INFO success: php-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-12-09 01:52:31,864 INFO success: queue-worker entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-12-09 07:42:17,583 WARN received SIGTERM indicating exit request
+2025-12-09 07:42:17,730 INFO waiting for php-serve, queue-worker to die
+2025-12-09 07:42:18,808 WARN stopped: queue-worker (terminated by SIGTERM)
+2025-12-09 07:42:18,873 WARN stopped: php-serve (terminated by SIGTERM)

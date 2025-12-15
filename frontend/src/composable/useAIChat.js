@@ -5,6 +5,7 @@ export function useAIChat() {
   const { user } = useAuth()
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+  const chatbotApiUrl = 'http://localhost:8005/api/v1/chat/message/stream'
 
   const isOpen = ref(false)
   const isTyping = ref(false)
@@ -12,6 +13,13 @@ export function useAIChat() {
   const currentMessage = ref('')
   const hasUnreadMessages = ref(false)
   const unreadCount = ref(0)
+  
+  // Quản lý session_id cho chatbot
+  let sessionId = localStorage.getItem('chatbot_session_id')
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    localStorage.setItem('chatbot_session_id', sessionId)
+  }
 
   const normalizeText = (text) => text
     .toLowerCase()
@@ -92,6 +100,66 @@ export function useAIChat() {
     return result.slice(0, 6)
   }
 
+  // Fetch inventory từ Laravel backend cho products
+  const fetchInventoryForProducts = async (products) => {
+    if (!products || products.length === 0) return products
+
+    try {
+      console.log('📦 Fetching inventory for', products.length, 'products...')
+      
+      // Fetch inventory cho tất cả products song song
+      const productsWithInventory = await Promise.all(
+        products.map(async (product) => {
+          try {
+            const response = await fetch(
+              `${apiBaseUrl}/api/inventory?product_id=${product.id}`,
+              {
+                headers: { 'Accept': 'application/json' }
+              }
+            )
+            
+            if (response.ok) {
+              const inventoryData = await response.json()
+              console.log(`✅ Inventory for product ${product.id} (${product.name}):`, inventoryData.length, 'variants')
+              
+              // Map inventory data vào variants
+              if (product.variants && Array.isArray(product.variants)) {
+                product.variants = product.variants.map(variant => {
+                  const inventoryItem = inventoryData.find(inv => inv.variant_id === variant.id)
+                  return {
+                    ...variant,
+                    inventory: inventoryItem ? {
+                      id: inventoryItem.id,
+                      quantity: inventoryItem.quantity || 0
+                    } : {
+                      quantity: 0
+                    }
+                  }
+                })
+                
+                // Log số lượng tồn kho
+                const totalStock = product.variants.reduce((sum, v) => sum + (v.inventory?.quantity || 0), 0)
+                console.log(`   → Total stock: ${totalStock} units`)
+              }
+            } else {
+              console.warn(`⚠️ Failed to fetch inventory for product ${product.id}`)
+            }
+          } catch (error) {
+            console.error(`❌ Error fetching inventory for product ${product.id}:`, error)
+          }
+          
+          return product
+        })
+      )
+      
+      console.log('✅ All products fetched with inventory')
+      return productsWithInventory
+    } catch (error) {
+      console.error('❌ Error in fetchInventoryForProducts:', error)
+      return products
+    }
+  }
+
   const sendMessage = async (message) => {
     if (!message.trim() || isTyping.value) return
 
@@ -104,6 +172,7 @@ export function useAIChat() {
       return
     }
 
+    // Thêm tin nhắn của người dùng
     messages.value.push({
       text: message,
       isUser: true,
@@ -113,99 +182,182 @@ export function useAIChat() {
     isTyping.value = true
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/ai/chat`, {
+      console.log('🚀 Sending message to chatbot API:', chatbotApiUrl)
+      console.log('📤 Request body:', { message, session_id: sessionId })
+
+      // Gọi API chatbot qua SSE
+      const response = await fetch(chatbotApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'text/event-stream'
         },
         body: JSON.stringify({
-          message,
-          context: buildClientContextHint()
+          message: message,
+          session_id: sessionId
         })
       })
 
-      const data = await response.json()
+      console.log('📥 Response status:', response.status)
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()))
 
-      if (data.context && data.context.products && Array.isArray(data.context.products)) {
-        data.context.products.forEach(product => {
-          // Xử lý từng sản phẩm nếu cần
-        })
-      } else {
-        console.log('No products in context or context is empty or products is not an array')
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
 
-      if (data.success) {
-        const aiMessage = {
-          text: data.message,
-          isUser: false,
-          timestamp: new Date()
-        }
+      // Kiểm tra content-type để xác định format
+      const contentType = response.headers.get('content-type')
+      console.log('📋 Content-Type:', contentType)
 
-        const userJustGreeted = isGreeting(message)
+      // Nếu response là JSON thông thường (không phải SSE)
+      if (contentType && contentType.includes('application/json')) {
+        console.log('⚠️ Received JSON instead of SSE, parsing as JSON')
+        const data = await response.json()
+        console.log('📦 JSON data:', data)
 
-        if (userJustGreeted) {
-          aiMessage.text = 'Chào bạn! Rất vui được hỗ trợ bạn hôm nay. Bạn cần tìm gì ạ?\n\nTôi có thể giúp bạn:\n• Tìm kiếm sản phẩm cụ thể\n• Xem mã giảm giá và khuyến mãi\n• Thông tin flash sale\n• Hướng dẫn mua hàng'
-          messages.value.push(aiMessage)
-          return
-        }
-
-        if (data.context && data.context.products && Array.isArray(data.context.products) && data.context.products.length > 0) {
-          aiMessage.products = data.context.products.slice(0, 6)
-          
-          // Truyền flag show_purchase_form từ backend
-          if (data.context.show_purchase_form !== undefined) {
-            aiMessage.show_purchase_form = data.context.show_purchase_form
-            console.log('Purchase form flag:', data.context.show_purchase_form)
-          }
-        }
-
-        // Xử lý context mã giảm giá
-        if (data.context && data.context.coupons && Array.isArray(data.context.coupons) && data.context.coupons.length > 0) {
-          const hasCouponRequest = message.toLowerCase().includes('mã giảm') ||
-            message.toLowerCase().includes('coupon') ||
-            message.toLowerCase().includes('khuyến mãi') ||
-            message.toLowerCase().includes('giảm giá') ||
-            message.toLowerCase().includes('discount')
-
-          if (hasCouponRequest) {
-            aiMessage.coupons = data.context.coupons.slice(0, 3)
-          }
-        }
-
-        // Xử lý context flash sale
-        if (data.context && data.context.flash_sales && Array.isArray(data.context.flash_sales) && data.context.flash_sales.length > 0) {
-          const hasFlashSaleRequest = message.toLowerCase().includes('flash sale') ||
-            message.toLowerCase().includes('khuyến mãi') ||
-            message.toLowerCase().includes('giảm giá') ||
-            message.toLowerCase().includes('hot') ||
-            message.toLowerCase().includes('nóng')
-
-          if (hasFlashSaleRequest) {
-            aiMessage.flashSales = data.context.flash_sales.slice(0, 3)
-          }
-        }
-
-        // Xử lý context tra cứu đơn hàng
-        if (data.context && data.context.order_tracking) {
-          aiMessage.orderTracking = true
-          // Đảm bảo KHÔNG hiển thị sản phẩm khi tra cứu đơn hàng
-          aiMessage.products = []
-          console.log('Order tracking detected, hiding products')
-        }
-
-        messages.value.push(aiMessage)
-      } else {
+        // Tạo tin nhắn AI
         messages.value.push({
-          text: 'Xin lỗi, tôi đang gặp sự cố. Vui lòng thử lại sau.',
+          text: data.message || data.response || data.content || 'Không có phản hồi',
           isUser: false,
           timestamp: new Date()
         })
+
+        isTyping.value = false
+        return
       }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let fullAiMessage = ''
+      let buffer = ''
+
+      // Tạo tin nhắn AI trống TRƯỚC KHI bắt đầu stream
+      messages.value.push({
+        text: '',
+        isUser: false,
+        timestamp: new Date()
+      })
+      const aiMessageIndex = messages.value.length - 1
+
+      // Đọc stream SSE với buffer handling đúng cách
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) {
+          console.log('✅ Stream ended')
+          break
+        }
+
+        // Decode chunk và thêm vào buffer
+        const chunk = decoder.decode(value, { stream: true })
+        buffer += chunk
+        
+        // Split theo newline, giữ phần cuối chưa đủ trong buffer
+        const lines = buffer.split('\n')
+        buffer = lines.pop() // Phần cuối chưa đủ line, giữ lại cho chunk sau
+
+        // Xử lý từng line đầy đủ
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          
+          const raw = line.slice(6).trim()
+          if (!raw) continue
+
+          console.log('📦 Processing:', raw)
+
+          try {
+            // Convert Python dict format sang JSON
+            const jsonData = raw
+              .replace(/'/g, '"')
+              .replace(/None/g, 'null')
+              .replace(/True/g, 'true')
+              .replace(/False/g, 'false')
+
+            const parsed = JSON.parse(jsonData)
+            
+            // Xử lý messagechunk - streaming content
+            if (parsed.type === 'messagechunk' && parsed.content) {
+              fullAiMessage += parsed.content
+              
+              // UPDATE NGAY LẬP TỨC để có hiệu ứng streaming
+              messages.value[aiMessageIndex].text = fullAiMessage
+              console.log('💬 Streaming:', parsed.content)
+            }
+            
+            // Xử lý done event - có thể có thêm data
+            if (parsed.type === 'done') {
+              console.log('✅ Done event:', parsed)
+              
+              // Nếu có full_message và chưa có text nào, dùng nó
+              if (parsed.full_message && !fullAiMessage) {
+                fullAiMessage = parsed.full_message
+                messages.value[aiMessageIndex].text = fullAiMessage
+              }
+              
+              // Xử lý products - fetch inventory từ backend
+              if (parsed.products && Array.isArray(parsed.products) && parsed.products.length > 0) {
+                console.log('🛍️ Chatbot returned', parsed.products.length, 'products')
+                
+                // Fetch inventory cho tất cả products
+                const productsWithInventory = await fetchInventoryForProducts(parsed.products)
+                
+                // Thêm vào message để hiển thị ProductCard
+                messages.value[aiMessageIndex].products = productsWithInventory
+                messages.value[aiMessageIndex].show_purchase_form = true
+                
+                console.log('✅ Products with inventory added to message')
+              }
+              
+              // Xử lý cart info
+              if (parsed.cart) {
+                console.log('🛒 Cart info:', parsed.cart)
+                messages.value[aiMessageIndex].cart = parsed.cart
+              }
+              
+              // Xử lý order_result
+              if (parsed.order_result) {
+                console.log('📦 Order result:', parsed.order_result)
+                messages.value[aiMessageIndex].orderResult = parsed.order_result
+              }
+              
+              // Xử lý suggested_actions - có thể làm quick action buttons
+              if (parsed.suggested_actions && Array.isArray(parsed.suggested_actions)) {
+                console.log('💡 Suggested actions:', parsed.suggested_actions)
+                messages.value[aiMessageIndex].suggestedActions = parsed.suggested_actions
+              }
+              
+              // Xử lý tools_used (để debug)
+              if (parsed.tools_used && Array.isArray(parsed.tools_used)) {
+                console.log('🔧 Tools used:', parsed.tools_used)
+              }
+              
+              break
+            }
+          } catch (err) {
+            console.warn('⚠️ Parse error:', err.message, 'Raw:', raw)
+            // Fallback: treat as plain text
+            fullAiMessage += raw
+            messages.value[aiMessageIndex].text = fullAiMessage
+          }
+        }
+      }
+
+      // Xử lý buffer còn lại (nếu có)
+      if (buffer.trim()) {
+        console.log('📝 Processing remaining buffer:', buffer)
+      }
+
+      console.log('🏁 Final message:', fullAiMessage.substring(0, 100) + '...')
+      console.log('🏁 Length:', fullAiMessage.length)
+
+      // Nếu không có nội dung, hiển thị thông báo lỗi
+      if (!fullAiMessage) {
+        messages.value[aiMessageIndex].text = 'Xin lỗi, tôi không thể phản hồi lúc này. Vui lòng thử lại.'
+      }
+
     } catch (error) {
       console.error('AI Chat Error:', error)
       messages.value.push({
-        text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.',
+        text: 'Xin lỗi, có lỗi xảy ra khi kết nối với chatbot. Vui lòng thử lại sau.',
         isUser: false,
         timestamp: new Date()
       })
@@ -449,6 +601,7 @@ export function useAIChat() {
     searchProductsByPrice,
     getProductVariants,
     searchOrder,
+    fetchInventoryForProducts,
     formatMessage,
     formatTime,
     formatPrice,

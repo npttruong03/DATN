@@ -625,33 +625,45 @@ export default {
 }
 
 .chat-window {
-  width: 480px;
-  height: 600px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.88)),
-    url('/ai-chatbot-bg.png') center/cover no-repeat;
-  border-radius: 24px;
+  width: 420px;
+  height: 650px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #d4e6ff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(20px);
   max-width: 100vw;
   max-height: 100vh;
   z-index: 9999;
   position: relative;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .chat-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  padding: 24px 20px 20px;
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   overflow: hidden;
   z-index: 10000;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
 }
 
 .chat-header::before {
@@ -663,6 +675,15 @@ export default {
   bottom: 0;
   background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
   animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .chat-header-info {
@@ -755,14 +776,32 @@ export default {
 
 .messages-container {
   flex: 1;
-  padding: 16px;
+  padding: 20px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   background: transparent;
   max-width: 100%;
+  scroll-behavior: smooth;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .message {
@@ -814,38 +853,31 @@ export default {
 }
 
 .message-text {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  padding: 16px;
-  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px 16px;
+  border-radius: 16px;
   font-size: 14px;
-  line-height: 1.6;
-  color: #1a202c;
-  border: 1px solid rgba(226, 232, 240, 0.6);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(10px);
+  line-height: 1.7;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: relative;
   overflow: visible;
   word-wrap: break-word;
   word-break: break-word;
   max-width: 100%;
+  transition: all 0.2s ease;
 }
 
-.message-text::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+.message-text:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .user-message .message-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.22), 0 2px 6px rgba(102, 126, 234, 0.08);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
 }
 
 .message-time {
@@ -902,25 +934,23 @@ export default {
 }
 
 .quick-action-btn {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 10px 18px;
-  border-radius: 24px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 13px;
-  color: #374151;
+  color: #4b5563;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(10px);
 }
 
 .quick-action-btn:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.25);
-  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  border-color: transparent;
 }
 
 .products-grid {
@@ -949,66 +979,50 @@ export default {
 
 .message-input {
   flex: 1;
-  border: 2px solid rgba(226, 232, 240, 0.8);
-  border-radius: 28px;
-  padding: 14px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 24px;
+  padding: 12px 18px;
   font-size: 14px;
   resize: none;
   max-height: 120px;
   outline: none;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  background: #ffffff;
+  font-family: inherit;
 }
 
 .message-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
-  background: rgba(255, 255, 255, 0.95);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .send-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.send-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .send-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
 }
 
-.send-btn:hover:not(:disabled)::before {
-  left: 100%;
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: scale(0.95);
 }
 
 .message-text strong {
@@ -1034,15 +1048,13 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 .payment-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
 }
 
 .payment-button:active {
@@ -1056,42 +1068,42 @@ export default {
 
 @media (max-width: 480px) {
   .ai-chatbot {
-    bottom: 90px;
-    right: 20px;
+    bottom: 80px;
+    right: 16px;
     z-index: 9999;
   }
 
   .chat-window {
-    width: calc(100vw - 20px);
-    height: calc(100vh - 120px);
+    width: calc(100vw - 32px);
+    height: calc(100vh - 140px);
     position: fixed;
-    top: 80px;
-    left: 10px;
-    right: 10px;
+    top: 70px;
+    left: 16px;
+    right: 16px;
     bottom: 20px;
     max-width: 100vw;
     max-height: 100vh;
     overflow: hidden;
-    border-radius: 24px;
+    border-radius: 20px;
     z-index: 9999;
   }
 
   .chat-widget-button {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     z-index: 9999;
   }
 
   .messages-container {
     padding: 16px;
-    gap: 12px;
+    gap: 14px;
   }
 
   .message-text {
-    padding: 14px 16px;
-    border-radius: 18px;
+    padding: 12px 14px;
+    border-radius: 16px;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
   .message-avatar {
@@ -1100,43 +1112,43 @@ export default {
   }
 
   .chat-title h3 {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .status {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .quick-actions {
     padding: 16px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .quick-action-btn {
-    padding: 10px 16px;
+    padding: 8px 14px;
     font-size: 12px;
   }
 
   .input-area {
-    padding: 20px;
+    padding: 16px;
   }
 
   .input-container {
-    gap: 12px;
+    gap: 10px;
   }
 
   .message-input {
-    padding: 12px 18px;
-    font-size: 13px;
+    padding: 10px 16px;
+    font-size: 14px;
   }
 
   .send-btn {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
   }
 
   .payment-button {
-    padding: 10px 20px;
+    padding: 10px 18px;
     font-size: 13px;
   }
 
@@ -1146,9 +1158,9 @@ export default {
   }
 
   .close-btn {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 12px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
     z-index: 10000;
@@ -1160,12 +1172,12 @@ export default {
   }
 
   .close-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .chat-header {
-    padding: 20px 16px 16px;
+    padding: 16px;
     z-index: 10000;
     position: relative;
   }
@@ -1175,17 +1187,24 @@ export default {
   }
 
   .ai-avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .chat-title h3 {
-    font-size: 16px;
-    line-height: 1.2;
+    font-size: 15px;
+    line-height: 1.3;
   }
 
   .status {
     font-size: 12px;
+  }
+
+  .widget-hint {
+    right: 80px;
+    bottom: 100px;
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }
 
