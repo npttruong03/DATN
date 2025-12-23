@@ -16,7 +16,29 @@ class GHNService
     {
         $this->baseUrl = config('services.ghn.base_url', 'https://online-gateway.ghn.vn/shiip/public-api/v2');
         $this->apiToken = config('services.ghn.api_token');
-        $this->shopId = config('services.ghn.shop_id'); // Lấy từ .env
+        $this->shopId = config('services.ghn.shop_id');
+        
+        // Nếu không có trong config, thử lấy từ database
+        if (empty($this->apiToken) || empty($this->shopId)) {
+            try {
+                $settings = \App\Models\Setting::whereIn('key', ['GHN_API_TOKEN', 'GHN_SHOP_ID', 'GHN_BASE_URL'])
+                    ->pluck('value', 'key');
+                
+                if (empty($this->apiToken) && isset($settings['GHN_API_TOKEN'])) {
+                    $this->apiToken = $settings['GHN_API_TOKEN'];
+                }
+                
+                if (empty($this->shopId) && isset($settings['GHN_SHOP_ID'])) {
+                    $this->shopId = $settings['GHN_SHOP_ID'];
+                }
+                
+                if (isset($settings['GHN_BASE_URL']) && !empty($settings['GHN_BASE_URL'])) {
+                    $this->baseUrl = $settings['GHN_BASE_URL'];
+                }
+            } catch (\Exception $e) {
+                Log::warning('Could not load GHN settings from database: ' . $e->getMessage());
+            }
+        }
     }
 
   
@@ -64,21 +86,64 @@ class GHNService
     public function getShopInfo()
     {
         try {
+            // Kiểm tra config
+            if (empty($this->apiToken)) {
+                Log::error('GHN API Token is empty');
+                return [
+                    'success' => false,
+                    'message' => 'API Token chưa được cấu hình. Vui lòng kiểm tra GHN_API_TOKEN trong .env hoặc Settings'
+                ];
+            }
+
+            if (empty($this->shopId)) {
+                Log::error('GHN Shop ID is empty');
+                return [
+                    'success' => false,
+                    'message' => 'Shop ID chưa được cấu hình. Vui lòng kiểm tra GHN_SHOP_ID trong .env hoặc Settings'
+                ];
+            }
+
+            Log::info('GHN Get Shop Info - Attempt 1: /shop', [
+                'url' => $this->baseUrl . '/shop',
+                'shop_id' => $this->shopId
+            ]);
+
+            // Thử endpoint đầu tiên: /shop
+            // Endpoint này có thể cần ShopId trong header hoặc query param
             $response = Http::withHeaders([
                 'Token' => $this->apiToken,
+                'ShopId' => $this->shopId, // Thêm ShopId vào header
             ])->get($this->baseUrl . '/shop', [
                 'id' => $this->shopId
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-                if ($data['code'] === 200) {
+                Log::info('GHN /shop Response:', $data);
+                
+                if (isset($data['code']) && $data['code'] === 200) {
                     return [
                         'success' => true,
                         'data' => $data['data']
                     ];
+                } else {
+                    Log::warning('GHN /shop returned non-200 code', [
+                        'code' => $data['code'] ?? 'unknown',
+                        'message' => $data['message'] ?? 'unknown'
+                    ]);
                 }
+            } else {
+                Log::warning('GHN /shop request failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
             }
+
+            // Thử endpoint thứ hai: /shop/detail
+            Log::info('GHN Get Shop Info - Attempt 2: /shop/detail', [
+                'url' => $this->baseUrl . '/shop/detail',
+                'shop_id' => $this->shopId
+            ]);
 
             $response2 = Http::withHeaders([
                 'Token' => $this->apiToken,
@@ -87,24 +152,54 @@ class GHNService
 
             if ($response2->successful()) {
                 $data2 = $response2->json();
-                if ($data2['code'] === 200) {
+                Log::info('GHN /shop/detail Response:', $data2);
+                
+                if (isset($data2['code']) && $data2['code'] === 200) {
                     return [
                         'success' => true,
                         'data' => $data2['data']
                     ];
+                } else {
+                    Log::warning('GHN /shop/detail returned non-200 code', [
+                        'code' => $data2['code'] ?? 'unknown',
+                        'message' => $data2['message'] ?? 'unknown'
+                    ]);
                 }
+            } else {
+                Log::warning('GHN /shop/detail request failed', [
+                    'status' => $response2->status(),
+                    'body' => $response2->body()
+                ]);
+            }
+
+            // Nếu cả hai đều fail, trả về lỗi chi tiết
+            $errorMessage = 'Không thể lấy thông tin shop từ GHN API. ';
+            if ($response->status() === 401) {
+                $errorMessage .= 'API Token không hợp lệ hoặc đã hết hạn.';
+            } elseif ($response->status() === 404) {
+                $errorMessage .= 'Shop ID không tồn tại.';
+            } else {
+                $errorMessage .= 'Vui lòng kiểm tra lại API Token và Shop ID.';
             }
 
             return [
                 'success' => false,
-                'message' => 'Không thể lấy thông tin shop từ GHN API'
+                'message' => $errorMessage,
+                'debug' => [
+                    'response1_status' => $response->status(),
+                    'response1_body' => $response->body(),
+                    'response2_status' => $response2->status(),
+                    'response2_body' => $response2->body(),
+                ]
             ];
 
         } catch (Exception $e) {
-            Log::error('GHN Shop Info Error: ' . $e->getMessage());
+            Log::error('GHN Shop Info Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
-                'message' => 'Có lỗi xảy ra khi lấy thông tin shop'
+                'message' => 'Có lỗi xảy ra khi lấy thông tin shop: ' . $e->getMessage()
             ];
         }
     }

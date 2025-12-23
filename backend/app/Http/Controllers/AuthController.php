@@ -113,13 +113,44 @@ class AuthController extends Controller
 
     public function redirectToGoogle()
     {
-        $url = Socialite::driver('google')
-            ->stateless()
-            ->redirectUrl(config('services.google.redirect'))
-            ->redirect()
-            ->getTargetUrl();
+        try {
+            $redirectUrl = config('services.google.redirect');
+            
+            // Log để debug
+            Log::info('Google OAuth Redirect', [
+                'redirect_url' => $redirectUrl,
+                'client_id' => config('services.google.client_id') ? 'Set' : 'Not set',
+                'client_secret' => config('services.google.client_secret') ? 'Set' : 'Not set'
+            ]);
+            
+            if (empty($redirectUrl)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'GOOGLE_REDIRECT_URL chưa được cấu hình trong .env'
+                ], 400);
+            }
+            
+            $url = Socialite::driver('google')
+                ->stateless()
+                ->redirectUrl($redirectUrl)
+                ->redirect()
+                ->getTargetUrl();
 
-        return response()->json(['url' => $url]);
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+                'debug' => [
+                    'redirect_uri_used' => $redirectUrl,
+                    'note' => 'Đảm bảo redirect URI này đã được thêm vào Google Cloud Console > Credentials > Authorized redirect URIs'
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Google OAuth redirect error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi tạo Google OAuth URL: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function handleGoogleCallback(Request $request)

@@ -152,51 +152,31 @@ class ShippingController extends Controller
     public function getShopInfo(): JsonResponse
     {
         try {
-            $shopId = config('services.ghn.shop_id');
-
-            if (!$shopId) {
+            $result = $this->ghnService->getShopInfo();
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $result['data']
+                ]);
+            } else {
+                $statusCode = 400;
+                if (isset($result['debug'])) {
+                    // Nếu có thông tin debug, trả về để dễ troubleshoot
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['message'],
+                        'debug' => $result['debug']
+                    ], $statusCode);
+                }
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Thiếu shop_id trong cấu hình'
-                ], 400);
+                    'message' => $result['message']
+                ], $statusCode);
             }
-
-            $response = Http::withHeaders([
-                'Token' => config('services.ghn.api_token'),
-                'ShopId' => $shopId,
-            ])->get(config('services.ghn.base_url') . '/shop/detail');
-
-            if ($response->successful()) {
-                $data = $response->json();
-                if ($data['code'] === 200) {
-                    return response()->json([
-                        'success' => true,
-                        'data' => $data['data']
-                    ]);
-                }
-            }
-
-            $response2 = Http::withHeaders([
-                'Token' => config('services.ghn.api_token'),
-            ])->get(config('services.ghn.base_url') . '/shop', [
-                'id' => $shopId
-            ]);
-
-            if ($response2->successful()) {
-                $data2 = $response2->json();
-                if ($data2['code'] === 200) {
-                    return response()->json([
-                        'success' => true,
-                        'data' => $data2['data']
-                    ]);
-                }
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể lấy thông tin shop từ GHN: ' . $response->body()
-            ], 400);
         } catch (\Exception $e) {
+            \Log::error('ShippingController getShopInfo Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi kết nối: ' . $e->getMessage()
@@ -209,6 +189,15 @@ class ShippingController extends Controller
     {
         try {
             $shopInfo = $this->getShopInfoFromGHN();
+            
+            // Kiểm tra shop có địa chỉ đầy đủ không
+            $hasAddress = false;
+            if (!empty($shopInfo)) {
+                $districtId = $shopInfo['district_id'] ?? 0;
+                $wardCode = $shopInfo['ward_code'] ?? '';
+                // district_id phải > 0 và ward_code không được rỗng
+                $hasAddress = ($districtId > 0 && !empty(trim($wardCode)));
+            }
 
             return response()->json([
                 'success' => true,
@@ -216,7 +205,10 @@ class ShippingController extends Controller
                     'base_url' => config('services.ghn.base_url'),
                     'token' => config('services.ghn.api_token'),
                     'shop_id' => config('services.ghn.shop_id'),
-                    'shop_info' => $shopInfo
+                    'shop_info' => $shopInfo,
+                    'has_shop_info' => !empty($shopInfo),
+                    'shop_info_has_address' => $hasAddress,
+                    'message' => $hasAddress ? null : 'Shop chưa có địa chỉ trong GHN. Vui lòng cập nhật địa chỉ shop trong GHN Dashboard.'
                 ]
             ]);
         } catch (\Exception $e) {
@@ -268,30 +260,78 @@ class ShippingController extends Controller
     public function getProvinces(): JsonResponse
     {
         try {
+            $apiToken = config('services.ghn.api_token');
+            
+            if (empty($apiToken)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'API Token chưa được cấu hình. Vui lòng kiểm tra GHN_API_TOKEN trong .env hoặc Settings'
+                ], 400);
+            }
+
             $response = Http::withHeaders([
-                'Token' => config('services.ghn.api_token'),
+                'Token' => $apiToken,
             ])->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province');
 
             if ($response->successful()) {
                 $data = $response->json();
-                if ($data['code'] === 200) {
+                if (isset($data['code']) && $data['code'] === 200) {
                     return response()->json([
                         'success' => true,
                         'data' => $data['data']
                     ]);
+                } else {
+                    // Xử lý lỗi từ GHN API
+                    $errorMessage = $data['message'] ?? 'Không thể lấy danh sách tỉnh từ GHN';
+                    
+                    // Kiểm tra lỗi IP không hợp lệ
+                    if (isset($data['code']) && $data['code'] === 401 && 
+                        stripos($errorMessage, 'IP') !== false && 
+                        stripos($errorMessage, 'not valid') !== false) {
+                        $errorMessage = 'IP của server chưa được whitelist trong GHN Dashboard. ' .
+                                      'Vui lòng đăng nhập GHN Dashboard > Cài đặt > API Integration > ' .
+                                      'Whitelist IP và thêm IP: ' . $this->getServerIP() . 
+                                      ' (hoặc IP của server bạn)';
+                    }
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'ghn_error' => $data
+                    ], 400);
                 }
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Không thể lấy danh sách tỉnh từ GHN: ' . $response->body()
+                'message' => 'Không thể kết nối đến GHN API. Status: ' . $response->status(),
+                'response' => $response->body()
             ], 400);
         } catch (\Exception $e) {
+            \Log::error('ShippingController getProvinces Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi kết nối: ' . $e->getMessage()
             ], 500);
         }
+    }
+    
+    private function getServerIP(): string
+    {
+        // Lấy IP public của server
+        try {
+            $ip = Http::timeout(5)->get('https://api.ipify.org?format=json');
+            if ($ip->successful()) {
+                $data = $ip->json();
+                return $data['ip'] ?? 'unknown';
+            }
+        } catch (\Exception $e) {
+            // Fallback: lấy IP từ request
+        }
+        
+        // Fallback: lấy IP từ server variables
+        $ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'unknown';
+        return $ip;
     }
 
 
@@ -307,27 +347,52 @@ class ShippingController extends Controller
                 ], 400);
             }
 
+            $apiToken = config('services.ghn.api_token');
+            
+            if (empty($apiToken)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'API Token chưa được cấu hình'
+                ], 400);
+            }
+
             $response = Http::withHeaders([
-                'Token' => config('services.ghn.api_token'),
+                'Token' => $apiToken,
             ])->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district', [
                 'province_id' => $provinceId
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-                if ($data['code'] === 200) {
+                if (isset($data['code']) && $data['code'] === 200) {
                     return response()->json([
                         'success' => true,
                         'data' => $data['data']
                     ]);
+                } else {
+                    $errorMessage = $data['message'] ?? 'Không thể lấy danh sách huyện từ GHN';
+                    
+                    if (isset($data['code']) && $data['code'] === 401 && 
+                        stripos($errorMessage, 'IP') !== false && 
+                        stripos($errorMessage, 'not valid') !== false) {
+                        $errorMessage = 'IP của server chưa được whitelist trong GHN Dashboard. ' .
+                                      'Vui lòng thêm IP: ' . $this->getServerIP();
+                    }
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'ghn_error' => $data
+                    ], 400);
                 }
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Không thể lấy danh sách huyện từ GHN: ' . $response->body()
+                'message' => 'Không thể kết nối đến GHN API. Status: ' . $response->status()
             ], 400);
         } catch (\Exception $e) {
+            \Log::error('ShippingController getDistricts Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi kết nối: ' . $e->getMessage()
@@ -348,27 +413,52 @@ class ShippingController extends Controller
                 ], 400);
             }
 
+            $apiToken = config('services.ghn.api_token');
+            
+            if (empty($apiToken)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'API Token chưa được cấu hình'
+                ], 400);
+            }
+
             $response = Http::withHeaders([
-                'Token' => config('services.ghn.api_token'),
+                'Token' => $apiToken,
             ])->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward', [
                 'district_id' => $districtId
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-                if ($data['code'] === 200) {
+                if (isset($data['code']) && $data['code'] === 200) {
                     return response()->json([
                         'success' => true,
                         'data' => $data['data']
                     ]);
+                } else {
+                    $errorMessage = $data['message'] ?? 'Không thể lấy danh sách xã từ GHN';
+                    
+                    if (isset($data['code']) && $data['code'] === 401 && 
+                        stripos($errorMessage, 'IP') !== false && 
+                        stripos($errorMessage, 'not valid') !== false) {
+                        $errorMessage = 'IP của server chưa được whitelist trong GHN Dashboard. ' .
+                                      'Vui lòng thêm IP: ' . $this->getServerIP();
+                    }
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'ghn_error' => $data
+                    ], 400);
                 }
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Không thể lấy danh sách xã từ GHN: ' . $response->body()
+                'message' => 'Không thể kết nối đến GHN API. Status: ' . $response->status()
             ], 400);
         } catch (\Exception $e) {
+            \Log::error('ShippingController getWards Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi kết nối: ' . $e->getMessage()
