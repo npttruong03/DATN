@@ -98,6 +98,7 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
+import { getImageUrl } from '../../utils/imageHelper'
 
 const props = defineProps({
     productImages: {
@@ -216,8 +217,8 @@ const setImageLoading = (imagePath) => {
 
 function getImgSrc(img) {
     if (!img) return ''
-    if (typeof img === 'string') return img
-    if (typeof img === 'object' && img.image_path) return img.image_path
+    if (typeof img === 'string') return getImageUrl(img)
+    if (typeof img === 'object' && img.image_path) return getImageUrl(img.image_path)
     return ''
 }
 

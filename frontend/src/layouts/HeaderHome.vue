@@ -1,10 +1,10 @@
 <template>
-    <TopBar />
+    <!-- <TopBar /> -->
     <nav class="sticky top-0 z-50 bg-white shadow-sm py-1">
         <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
             <!-- Logo -->
             <router-link to="/" class="flex items-center">
-                <img src="/logo1.png" alt="EGA MEN" class="w-20" />
+                <img src="/logo.png" alt="EGA MEN" class="w-20" />
             </router-link>
 
             <!-- Desktop Navigation -->

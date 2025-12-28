@@ -1,6 +1,6 @@
 <template>
     <!-- <div class="form-container mx-auto mt-[100px] bg-white mb-10 border border-gray-200"> -->
-    <div class="mx-auto mt-[100px] bg-white mb-10 border border-gray-200 
+    <div class="register-form-container mx-auto mt-[100px] bg-white mb-10 border border-gray-200 
             rounded-lg
             w-[90%] sm:w-[400px] md:w-[500px] max-w-[500px]
             px-4 sm:px-6 py-6">
@@ -53,7 +53,7 @@
                 <p v-if="error.register" class="text-red-500 text-sm mt-1">{{ error.register }}</p>
             </div>
 
-            <div id="cf-turnstile" class="mb-3"></div>
+            <div id="cf-turnstile" class="mb-3 turnstile-container"></div>
             <button type="submit" class="py-2 rounded-lg bg-[#81AACC] text-white hover:bg-[#66a2d3] w-full relative"
                 :disabled="isLoading">
                 <span :class="{ 'opacity-0': isLoading }">Đăng Ký</span>
@@ -184,3 +184,79 @@ const handleRegister = async () => {
     }
 }
 </script>
+
+<style scoped>
+/* Đảm bảo container form không chặn tương tác */
+.register-form-container {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+/* Đảm bảo captcha không chặn tương tác với các phần tử khác */
+.turnstile-container {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    overflow: visible;
+    isolation: isolate;
+}
+
+/* Đảm bảo iframe của Turnstile không chặn navigation */
+.turnstile-container iframe {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1 !important;
+    max-width: 100%;
+}
+
+/* Đảm bảo các phần tử khác vẫn có thể tương tác */
+form {
+    position: relative;
+    z-index: 1;
+}
+
+/* Đảm bảo router-link vẫn hoạt động */
+a {
+    position: relative;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+</style>
+
+<style>
+/* Global style để đảm bảo navigation không bị chặn trên trang đăng ký */
+body {
+    overflow-x: hidden;
+}
+
+/* Đảm bảo router-link hoạt động trên toàn bộ trang */
+a[href],
+router-link,
+a.router-link-active,
+a.router-link-exact-active {
+    pointer-events: auto !important;
+    z-index: 1000 !important;
+    position: relative;
+    cursor: pointer !important;
+}
+
+/* Đảm bảo header và footer không bị chặn */
+header,
+footer,
+nav {
+    position: relative;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+}
+
+/* Đảm bảo không có overlay nào chặn trên trang đăng ký */
+body:has(.register-form-container) {
+    overflow: visible !important;
+}
+
+body:has(.register-form-container) * {
+    pointer-events: auto !important;
+}
+</style>

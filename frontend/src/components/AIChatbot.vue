@@ -21,7 +21,7 @@
           <div class="ai-avatar">
             <img class="ai-avatar-img"
               src="https://lapsedhistorian.com/wp-content/uploads/2024/09/125887131_Chatbot%20Message%20Bubble.jpg"
-              alt="Trợ Lí DEVGANG" />
+              alt="Trợ Lí DEVG" />
           </div>
           <div class="chat-title">
             <h3>Trợ Lí DEVGANG</h3>
@@ -46,7 +46,7 @@
           <div class="message-avatar" v-if="!message.isUser">
             <img class="ai-message-avatar-img"
               src="https://lapsedhistorian.com/wp-content/uploads/2024/09/125887131_Chatbot%20Message%20Bubble.jpg"
-              alt="Trợ Lí DEVGANG" />
+              alt="Trợ Lí DEVG" />
           </div>
           <div class="message-content">
             <div class="message-text">

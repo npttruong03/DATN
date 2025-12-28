@@ -5,7 +5,7 @@ export function useAIChat() {
   const { user } = useAuth()
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-  const chatbotApiUrl = 'http://localhost:8005/api/v1/chat/message/stream'
+  const chatbotApiUrl = 'https://chatbot.dinon.uk/api/v1/chat/message/stream'
 
   const isOpen = ref(false)
   const isTyping = ref(false)
@@ -509,7 +509,7 @@ export function useAIChat() {
   const addWelcomeMessage = () => {
     if (messages.value.length === 0) {
       messages.value.push({
-        text: '👋 Xin chào! Tôi là trợ lý AI của DEVGANG Shop. Rất vui được hỗ trợ bạn hôm nay!\n\n🌟 Tôi có thể giúp bạn:\n\n🔍 Tìm kiếm và tư vấn sản phẩm\n🎫 Thông tin mã giảm giá & khuyến mãi\n💳 Hướng dẫn thanh toán\n🔥 Thông tin flash sale hot\n📂 Tư vấn danh mục sản phẩm\n📦 Tra cứu đơn hàng\n💰 Tìm sản phẩm theo giá\n\n💬 Hãy nhắn tin cho tôi hoặc chọn các gợi ý bên dưới nhé!',
+        text: '👋 Xin chào! Tôi là trợ lý AI của DEVG Shop. Rất vui được hỗ trợ bạn hôm nay!\n\n🌟 Tôi có thể giúp bạn:\n\n🔍 Tìm kiếm và tư vấn sản phẩm\n🎫 Thông tin mã giảm giá & khuyến mãi\n💳 Hướng dẫn thanh toán\n🔥 Thông tin flash sale hot\n📂 Tư vấn danh mục sản phẩm\n📦 Tra cứu đơn hàng\n💰 Tìm sản phẩm theo giá\n\n💬 Hãy nhắn tin cho tôi hoặc chọn các gợi ý bên dưới nhé!',
         isUser: false,
         timestamp: new Date()
       })

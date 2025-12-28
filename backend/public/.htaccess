@@ -5,7 +5,10 @@
 
     RewriteEngine On
 
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+    # Serve storage files
+    RewriteCond %{REQUEST_URI} ^/storage/(.*)$
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^storage/(.*)$ ../storage/app/public/$1 [L]
     
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
