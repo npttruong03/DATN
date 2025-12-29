@@ -294,9 +294,10 @@ function formatDate(dateString) {
     return date.toLocaleDateString('vi-VN')
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 function getImageUrl(path) {
     if (!path) return ''
-    return path.startsWith('/storage/') ? `http://localhost:8000${path}` : path
+    return path.startsWith('/storage/') ? `${apiBaseUrl}${path}` : path
 }
 </script>
 

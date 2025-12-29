@@ -269,7 +269,8 @@ export default {
     const handleSaveCoupon = async (coupon) => {
       try {
         // Gọi API để lưu mã giảm giá vào database
-        const response = await fetch(`http://127.0.0.1:8000/api/coupons/${coupon.id}/claim`, {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+        const response = await fetch(`${apiBaseUrl}/api/coupons/${coupon.id}/claim`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -320,7 +321,8 @@ export default {
     // Method để sử dụng mã giảm giá
     const useCoupon = async (couponId) => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/coupons/${couponId}/use`, {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+        const response = await fetch(`${apiBaseUrl}/api/coupons/${couponId}/use`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -370,7 +372,8 @@ export default {
     const showSavedCoupons = async () => {
       try {
         // Gọi API để lấy mã giảm giá đã lưu từ database
-        const response = await fetch(`http://127.0.0.1:8000/api/coupons/my-coupons`, {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+        const response = await fetch(`${apiBaseUrl}/api/coupons/my-coupons`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}` // JWT token
