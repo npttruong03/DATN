@@ -1,4 +1,4 @@
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 
 export const useCaptcha = () => {
     const captchaToken = ref(null)
@@ -60,16 +60,7 @@ export const useCaptcha = () => {
         }
     }
 
-    onMounted(() => {
-        // Đợi DOM sẵn sàng
-        if (document.readyState === 'complete') {
-            renderCaptcha()
-        } else {
-            window.addEventListener('load', renderCaptcha)
-        }
-    })
-
-    onBeforeUnmount(() => {
+    const cleanup = () => {
         // Xóa widget khi component unmount
         if (widgetId.value && typeof window !== 'undefined' && window.turnstile) {
             try {
@@ -78,10 +69,15 @@ export const useCaptcha = () => {
                 console.warn('Error removing captcha on unmount:', e)
             }
         }
+    }
+
+    onBeforeUnmount(() => {
+        cleanup()
     })
 
     return {
         captchaToken,
-        renderCaptcha
+        renderCaptcha,
+        cleanup
     }
 }

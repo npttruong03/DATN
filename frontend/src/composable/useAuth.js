@@ -77,17 +77,9 @@ const login = async (credentials) => {
 const register = async (data) => {
     try {
         const res = await API.post('/api/register', data)
-        if (res.data.token) {
-            token.value = res.data.token
-            Cookies.set('token', token.value, { expires: 1 })
-            localStorage.setItem('token', token.value)
-            if (res.data.user) {
-                userInfo.value = res.data.user
-                Cookies.set('user', JSON.stringify(userInfo.value), { expires: 1 })
-                user.value = res.data.user
-                isAuthenticated.value = true
-                isAdmin.value = user.value?.role === 'admin'
-            }
+        // Backend bây giờ chỉ trả về message và email, không trả về token
+        // Token sẽ được trả về sau khi verify OTP
+        if (res.data.message || res.data.email) {
             return true
         }
         return false
@@ -207,6 +199,32 @@ const resetPassword = async (email, otp, password, password_confirmation) => {
         return res.data
     } catch (err) {
         console.error('Reset password error:', err.response?.data || err.message)
+        throw err
+    }
+}
+
+const verifyRegistrationOtp = async (email, otp) => {
+    try {
+        const res = await API.post('/api/verify-registration-otp', {
+            email,
+            otp
+        })
+        if (res.data.token) {
+            token.value = res.data.token
+            Cookies.set('token', token.value, { expires: 1 })
+            localStorage.setItem('token', token.value)
+            if (res.data.user) {
+                userInfo.value = res.data.user
+                Cookies.set('user', JSON.stringify(userInfo.value), { expires: 1 })
+                user.value = res.data.user
+                isAuthenticated.value = true
+                isAdmin.value = user.value?.role === 'admin'
+            }
+            return true
+        }
+        return false
+    } catch (err) {
+        console.error('Verify registration OTP error:', err.response?.data || err.message)
         throw err
     }
 }
@@ -366,6 +384,7 @@ export const useAuth = () => {
         getListUser,
         forgotPassword,
         resetPassword,
+        verifyRegistrationOtp,
         updateUserProfile,
         resetPasswordProfile,
         updateUser,

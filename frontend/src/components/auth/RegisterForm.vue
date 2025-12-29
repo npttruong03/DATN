@@ -53,7 +53,6 @@
                 <p v-if="error.register" class="text-red-500 text-sm mt-1">{{ error.register }}</p>
             </div>
 
-            <div id="cf-turnstile" class="mb-3 turnstile-container"></div>
             <button type="submit" class="py-2 rounded-lg bg-[#81AACC] text-white hover:bg-[#66a2d3] w-full relative"
                 :disabled="isLoading">
                 <span :class="{ 'opacity-0': isLoading }">Đăng Ký</span>
@@ -72,23 +71,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import { useAuth } from '../../composable/useAuth'
 import { useAuthStore } from '../../stores/auth'
 import Cookies from 'js-cookie'
-import { useCaptcha } from '../../composable/useCapcha'
 import { push } from 'notivue'
 
 const { register } = useAuth()
 const authStore = useAuthStore()
-const { captchaToken } = useCaptcha()
 
 const form = reactive({
     username: '',
     email: '',
     password: '',
-    confirm_password: '',
-    cf_turnstile_response: 'test-token'
+    confirm_password: ''
 })
 
 const error = reactive({
@@ -144,10 +140,6 @@ const handleRegister = async () => {
         error.confirm_password = 'Mật khẩu xác nhận không khớp'
         hasError = true
     }
-    if (!captchaToken.value) {
-        error.register = 'Vui lòng xác nhận captcha'
-        hasError = true
-    }
 
     if (hasError) {
         isLoading.value = false
@@ -159,28 +151,26 @@ const handleRegister = async () => {
             username: form.username,
             email: form.email,
             password: form.password,
-            role: 'user',
-            cf_turnstile_response: captchaToken.value
+            role: 'user'
         });
         if (res) {
-            const userCookie = Cookies.get('user')
-            if (userCookie) {
-                authStore.setUser(JSON.parse(userCookie))
-            }
             isLoading.value = false
-            localStorage.setItem('rememberedEmail', form.email)
-            localStorage.setItem('rememberedPassword', form.password)
-            push.success('Đăng ký thành công! Đang chuyển hướng...')
+            push.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
+            // Chuyển hướng đến trang xác thực OTP
             setTimeout(() => {
-                window.location.href = '/'
-            }, 3000)
+                window.location.href = `/verify-registration?email=${encodeURIComponent(form.email)}`
+            }, 2000)
         }
     } catch (err) {
-        // error.register = 'Đăng ký thất bại!'
-        if (err.response && err.response.data) {
-            error.register = err.response.data.error || err.response.data.message || 'Đăng ký thất bại!'
-        }
         isLoading.value = false
+        if (err.response && err.response.data) {
+            const errorMessage = err.response.data.error || err.response.data.message || 'Đăng ký thất bại!'
+            error.register = errorMessage
+            push.error(errorMessage)
+        } else {
+            error.register = 'Đăng ký thất bại! Vui lòng thử lại sau.'
+            push.error('Đăng ký thất bại! Vui lòng thử lại sau.')
+        }
     }
 }
 </script>
@@ -191,23 +181,6 @@ const handleRegister = async () => {
     position: relative;
     z-index: 1;
     pointer-events: auto;
-}
-
-/* Đảm bảo captcha không chặn tương tác với các phần tử khác */
-.turnstile-container {
-    position: relative;
-    z-index: 1;
-    pointer-events: auto;
-    overflow: visible;
-    isolation: isolate;
-}
-
-/* Đảm bảo iframe của Turnstile không chặn navigation */
-.turnstile-container iframe {
-    pointer-events: auto !important;
-    position: relative !important;
-    z-index: 1 !important;
-    max-width: 100%;
 }
 
 /* Đảm bảo các phần tử khác vẫn có thể tương tác */

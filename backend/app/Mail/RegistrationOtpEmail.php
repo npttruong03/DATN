@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OtpEmail extends Mailable
+class RegistrationOtpEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -22,11 +22,12 @@ class OtpEmail extends Mailable
 
     public function build()
     {
-        return $this->subject('Mã OTP đặt lại mật khẩu')
-            ->view('emails.otp')
+        return $this->subject('Mã OTP xác thực tài khoản')
+            ->view('emails.registration-otp')
             ->with([
                 'otp' => $this->otp,
                 'user' => $this->user,
             ]);
     }
 }
+

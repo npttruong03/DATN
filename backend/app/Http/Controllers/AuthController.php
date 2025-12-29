@@ -12,6 +12,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Log;
 use App\Mail\WelcomeEmail;
 use App\Mail\OtpEmail;
+use App\Mail\RegistrationOtpEmail;
 use App\Mail\UserBannedMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -21,36 +22,85 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'username' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-            'role' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'username' => 'required',
+                'email' => 'required|email',
+                'password' => 'required|min:6',
+                'role' => 'required',
+            ]);
 
-        $existingUser = User::where('email', $request->email)->first();
-        if ($existingUser && $existingUser->isGoogleUser() && !$existingUser->password) {
+            // Kiểm tra email đã tồn tại (bao gồm cả soft deleted)
+            $existingUser = User::withTrashed()->where('email', $request->email)->first();
+            if ($existingUser) {
+                if ($existingUser->isGoogleUser() && !$existingUser->password) {
+                    return response()->json([
+                        'error' => 'Email này đã được sử dụng để đăng ký bằng Google. Vui lòng sử dụng đăng nhập Google.'
+                    ], 422);
+                }
+
+                // Kiểm tra nếu user bị soft delete
+                if ($existingUser->trashed()) {
+                    return response()->json([
+                        'error' => 'Email này đã được sử dụng trước đó. Vui lòng sử dụng email khác.'
+                    ], 422);
+                }
+
+                // Email đã tồn tại
+                return response()->json([
+                    'error' => 'Email này đã được sử dụng. Vui lòng sử dụng email khác.'
+                ], 422);
+            }
+
+            // Tạo tài khoản với status = false (chưa kích hoạt)
+            $user = User::create([
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => 'user',
+                'ip_user' => $request->ip(),
+                'status' => false, // Tài khoản chưa được kích hoạt
+            ]);
+
+            Log::info('Request IP: ' . request()->ip());
+            Log::info('X-Forwarded-For: ' . request()->header('X-Forwarded-For'));
+
+            // Tạo và gửi OTP
+            $otp = $user->generateOtp(10);
+            // Gửi email trực tiếp (không qua queue) để đảm bảo gửi được
+            try {
+                Mail::to($user->email)->send(new RegistrationOtpEmail($otp, $user));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to send registration OTP email: ' . $mailException->getMessage());
+                // Vẫn trả về thành công vì OTP đã được tạo và lưu
+            }
+
             return response()->json([
-                'error' => 'Email này đã được sử dụng để đăng ký bằng Google. Vui lòng sử dụng đăng nhập Google.'
-            ], 422);
+                'message' => 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'email' => $user->email,
+                'expires_in' => '10 phút'
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Bắt lỗi database constraint violation
+            if ($e->getCode() == 23000) {
+                // Kiểm tra nếu là lỗi duplicate entry
+                if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'users_email_unique')) {
+                    return response()->json([
+                        'error' => 'Email này đã được sử dụng. Vui lòng sử dụng email khác.'
+                    ], 422);
+                }
+            }
+            
+            Log::error('Registration error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.'
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Registration error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.'
+            ], 500);
         }
-
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => 'user',
-            'ip_user' => $request->ip(),
-        ]);
-
-        Log::info('Request IP: ' . request()->ip());
-        Log::info('X-Forwarded-For: ' . request()->header('X-Forwarded-For'));
-
-        Mail::to($user->email)->queue(new WelcomeEmail($user));
-
-        $token = JWTAuth::fromUser($user);
-
-        return response()->json(compact('token', 'user'));
     }
 
     public function login(Request $request)
@@ -71,7 +121,24 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if ($user->status === 0) {
+        // Kiểm tra tài khoản chưa được kích hoạt
+        if ($user->status === false || $user->status === 0) {
+            // Nếu tài khoản chưa được kích hoạt, gửi lại OTP
+            if ($user->status === false) {
+                $otp = $user->generateOtp(10);
+                try {
+                    Mail::to($user->email)->send(new RegistrationOtpEmail($otp, $user));
+                } catch (\Exception $mailException) {
+                    Log::error('Failed to send registration OTP email: ' . $mailException->getMessage());
+                }
+                
+                return response()->json([
+                    'error' => 'Tài khoản chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.',
+                    'requires_verification' => true,
+                    'email' => $user->email
+                ], 403);
+            }
+            
             return response()->json(['error' => 'Tài khoản đã bị khóa'], 403);
         }
 
@@ -341,7 +408,13 @@ class AuthController extends Controller
 
             $user->setOtp($otp, 10);
 
-            Mail::to($user->email)->queue(new OtpEmail($otp, $user));
+            // Gửi email trực tiếp (không qua queue) để đảm bảo gửi được
+            try {
+                Mail::to($user->email)->send(new OtpEmail($otp, $user));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to send OTP email: ' . $mailException->getMessage());
+                // Vẫn trả về thành công vì OTP đã được tạo và lưu
+            }
 
             return response()->json([
                 'message' => 'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.',
@@ -471,6 +544,106 @@ class AuthController extends Controller
             'message' => 'Mã OTP hợp lệ',
             'expires_at' => $user->otp_expires_at->format('Y-m-d H:i:s')
         ]);
+    }
+
+    public function verifyRegistrationOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|array|size:6',
+            'otp.*' => 'required|digits:1',
+        ], [
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Email không đúng định dạng',
+            'otp.required' => 'Vui lòng nhập mã OTP',
+            'otp.size' => 'Mã OTP phải có đúng 6 số',
+            'otp.*.required' => 'Vui lòng nhập đầy đủ 6 số OTP',
+            'otp.*.digits' => 'Mỗi ô OTP phải là 1 số',
+        ]);
+
+        try {
+            $otp = implode('', $request->input('otp'));
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'Người dùng không tồn tại'
+                ], 404);
+            }
+
+            if (!$user->hasValidOtp($otp)) {
+                return response()->json([
+                    'error' => 'Mã OTP không hợp lệ hoặc đã hết hạn!'
+                ], 400);
+            }
+
+            // Kích hoạt tài khoản và xóa OTP
+            $user->update([
+                'status' => true,
+                'otp' => null,
+                'otp_expires_at' => null,
+            ]);
+
+            // Gửi email chào mừng
+            Mail::to($user->email)->queue(new WelcomeEmail($user));
+
+            // Tạo token JWT
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json([
+                'message' => 'Xác thực thành công! Tài khoản của bạn đã được kích hoạt.',
+                'token' => $token,
+                'user' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to verify registration OTP: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi xác thực. Vui lòng thử lại.'
+            ], 500);
+        }
+    }
+
+    public function resendRegistrationOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.required' => 'Email là bắt buộc',
+            'email.email' => 'Email không đúng định dạng',
+            'email.exists' => 'Email này không tồn tại trong hệ thống'
+        ]);
+
+        try {
+            $user = User::where('email', $request->email)->first();
+
+            // Chỉ gửi lại OTP cho tài khoản chưa được kích hoạt
+            if ($user->status === true) {
+                return response()->json([
+                    'error' => 'Tài khoản đã được kích hoạt. Vui lòng đăng nhập.'
+                ], 400);
+            }
+
+            $otp = $user->generateOtp(10);
+            // Gửi email trực tiếp (không qua queue) để đảm bảo gửi được
+            try {
+                Mail::to($user->email)->send(new RegistrationOtpEmail($otp, $user));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to send registration OTP email: ' . $mailException->getMessage());
+                // Vẫn trả về thành công vì OTP đã được tạo và lưu
+            }
+
+            return response()->json([
+                'message' => 'Mã OTP đã được gửi lại đến email của bạn. Vui lòng kiểm tra hộp thư.',
+                'expires_in' => '10 phút'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to resend registration OTP: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi gửi lại mã OTP. Vui lòng thử lại.'
+            ], 500);
+        }
     }
 
     public function updateProfile(Request $request)
