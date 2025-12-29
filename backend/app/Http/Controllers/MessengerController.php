@@ -7,6 +7,7 @@ use App\Models\Messenger;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\WebSocketService;
 
 class MessengerController extends Controller
 {
@@ -89,6 +90,16 @@ class MessengerController extends Controller
         $messages[] = $newMessage;
         $messenger->messages = $messages;
         $messenger->save();
+
+        // Emit WebSocket event to receiver
+        try {
+            $websocketService = new WebSocketService();
+            // Send message data to receiver via WebSocket
+            $websocketService->emit('new-message', $newMessage, $request->receiver_id);
+        } catch (\Exception $e) {
+            \Log::error('Failed to emit WebSocket message: ' . $e->getMessage());
+        }
+
         return response()->json($newMessage, 201);
     }
 
@@ -106,6 +117,22 @@ class MessengerController extends Controller
             }
             $messenger->messages = $messages;
             $messenger->save();
+
+            // Notify sender via WebSocket
+            try {
+                $websocketService = new WebSocketService();
+                $messageIndex = array_search($messageId, array_column($messages, 'id'));
+                $senderId = $messageIndex !== false ? $messages[$messageIndex]['sender_id'] ?? null : null;
+                if ($senderId) {
+                    $websocketService->emit('message-read', [
+                        'messageId' => $messageId,
+                        'readBy' => $userId
+                    ], $senderId);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to emit WebSocket read notification: ' . $e->getMessage());
+            }
+
             return response()->json(['message' => 'Đã đánh dấu đã đọc']);
         }
         return response()->json(['error' => 'Không tìm thấy tin nhắn'], 404);

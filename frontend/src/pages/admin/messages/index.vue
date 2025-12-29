@@ -139,6 +139,7 @@ useHead({
 })
 import { ref, onMounted, computed, nextTick, watch, onUnmounted } from 'vue'
 import { useChat } from '../../../composable/useChat'
+import { useWebSocket } from '../../../composable/useWebSocket'
 import MessageContent from '../../../components/admin/messages/MessagesContent.vue'
 
 // Mobile responsive logic
@@ -190,8 +191,10 @@ const modalImage = ref('')
 const messagesContainer = ref(null)
 const messageContentRef = ref(null)
 const messageUpdateTrigger = ref(0)
-const autoUpdateInterval = ref(null)
 const isReadingMessages = ref(false)
+
+// WebSocket setup
+const { connect, on, off, emit, isConnected } = useWebSocket()
 
 const filteredConversations = computed(() => {
     if (!searchQuery.value) return conversations.value
@@ -235,10 +238,11 @@ const loadConversations = async () => {
 const selectConversation = async (conversation) => {
     selectedUser.value = conversation.user
     messages.value = []
+    // Chỉ load messages lần đầu khi chọn conversation
     await loadMessages()
     await nextTick()
     messageContentRef.value?.scrollToBottom()
-    await loadConversations()
+    // Không cần reload conversations vì đã có sẵn
 }
 
 function isAtBottom() {
@@ -248,7 +252,8 @@ function isAtBottom() {
 }
 
 const loadMessages = async () => {
-    if (!selectedUser.value) return
+    if (!selectedUser.value || loadingMessages.value) return // Tránh load đồng thời
+    
     try {
         loadingMessages.value = true
         const newMessages = await getMessages(selectedUser.value.id)
@@ -281,9 +286,25 @@ const handleSendMessage = async ({ text, file }) => {
         messages.value.push(message)
         await nextTick()
         scrollToBottom()
-        await loadConversations()
-        const chatChannel = new BroadcastChannel('chat_channel')
-        chatChannel.postMessage({ type: 'new_message', userId: selectedUser.value.id })
+        
+        // Update conversations list locally (không cần reload từ server)
+        const conversationIndex = conversations.value.findIndex(
+            c => c.user.id === selectedUser.value.id
+        )
+        if (conversationIndex !== -1) {
+            conversations.value[conversationIndex].latest_message = message
+            // Move to top
+            const conversation = conversations.value.splice(conversationIndex, 1)[0]
+            conversations.value.unshift(conversation)
+        }
+        
+        // Emit via WebSocket to receiver
+        if (isConnected.value) {
+            emit('private-message', {
+                receiverId: selectedUser.value.id,
+                message: message
+            })
+        }
     } catch (err) {
         console.error('Lỗi khi gửi tin nhắn:', err)
     } finally {
@@ -316,48 +337,72 @@ const closeImageModal = () => {
     modalImage.value = ''
 }
 
-const startAutoUpdate = () => {
-    stopAutoUpdate()
-    autoUpdateInterval.value = setInterval(async () => {
-        await loadConversations()
-    }, 10000)
-}
-
-const stopAutoUpdate = () => {
-    if (autoUpdateInterval.value) {
-        clearInterval(autoUpdateInterval.value)
-        autoUpdateInterval.value = null
-    }
-}
-
-watch(selectedUser, (val) => {
-    if (val) {
-        loadMessages()
-    }
-})
-
-watch(conversations, (newConversations, oldConversations) => {
-    if (
-        selectedUser.value &&
-        newConversations.length &&
-        oldConversations &&
-        newConversations[0].user.id === selectedUser.value.id &&
-        JSON.stringify(newConversations[0].latest_message) !== JSON.stringify(oldConversations[0]?.latest_message)
-    ) {
-        loadMessages()
-    }
-})
-
-const chatChannel = new BroadcastChannel('chat_channel')
-chatChannel.onmessage = async (event) => {
-    if (event.data.type === 'new_message') {
-        await loadMessages()
-        await nextTick()
-        if (messageContentRef.value) {
-            messageContentRef.value.scrollToBottom()
+// Setup WebSocket listeners for realtime messages
+const setupWebSocketListeners = () => {
+    // Listen for new messages
+    on('new-message', (message) => {
+        // Check if message is for current conversation
+        if (selectedUser.value && String(message.senderId) === String(selectedUser.value.id)) {
+            // Check if message already exists
+            const exists = messages.value.some(m => m.id === message.id)
+            if (!exists) {
+                messages.value.push(message)
+                nextTick(() => {
+                    if (messageContentRef.value) {
+                        messageContentRef.value.scrollToBottom()
+                    }
+                })
+            }
         }
-    }
+        
+        // Update conversations list với tin nhắn mới qua WebSocket (không cần reload từ server)
+        const conversationIndex = conversations.value.findIndex(
+            c => c.user.id === message.senderId
+        )
+        if (conversationIndex !== -1) {
+            // Update latest message
+            conversations.value[conversationIndex].latest_message = message
+            // Update unread count nếu không phải conversation đang mở
+            if (!selectedUser.value || String(selectedUser.value.id) !== String(message.senderId)) {
+                conversations.value[conversationIndex].unread_count = 
+                    (conversations.value[conversationIndex].unread_count || 0) + 1
+            }
+            // Move to top
+            const conversation = conversations.value.splice(conversationIndex, 1)[0]
+            conversations.value.unshift(conversation)
+        } else {
+            // Nếu chưa có conversation, cần load lại conversations (trường hợp hiếm)
+            loadConversations()
+        }
+    })
+
+    // Listen for message read notifications
+    on('message-read', (data) => {
+        const { messageId } = data
+        const messageIndex = messages.value.findIndex(m => m.id === messageId)
+        if (messageIndex !== -1) {
+            messages.value[messageIndex].is_read = true
+            messages.value[messageIndex].read_at = new Date().toISOString()
+        }
+    })
 }
+
+const removeWebSocketListeners = () => {
+    off('new-message')
+    off('message-read')
+}
+
+// Không còn polling - chỉ dùng WebSocket
+
+
+// Không cần watch conversations nữa vì WebSocket sẽ update realtime
+
+// Watch selectedUser to load messages
+watch(selectedUser, (newUser) => {
+    if (newUser) {
+        loadMessages()
+    }
+})
 
 watch(messages, (newMessages) => {
     nextTick(() => {
@@ -368,17 +413,28 @@ watch(messages, (newMessages) => {
 }, { deep: true })
 
 onMounted(async () => {
-
     // Check mobile on mount
     checkMobile()
     window.addEventListener('resize', checkMobile)
 
-    await loadConversations() // Load ngay lập tức
-    startAutoUpdate()
+    // Connect WebSocket
+    if (!isConnected.value) {
+        connect()
+    }
+
+    // Load conversations chỉ lần đầu
+    await loadConversations()
+
+    // Setup WebSocket listeners after a short delay to ensure connection
+    setTimeout(() => {
+        if (isConnected.value) {
+            setupWebSocketListeners()
+        }
+    }, 1000)
 })
 
 onUnmounted(() => {
-    stopAutoUpdate()
+    removeWebSocketListeners()
     window.removeEventListener('resize', checkMobile)
 })
 </script>

@@ -1,8 +1,9 @@
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { push } from 'notivue'
 import api from '../utils/api'
+import { useWebSocket } from './useWebSocket'
 
 export function useNotification() {
     const notifications = ref([])
@@ -13,6 +14,9 @@ export function useNotification() {
 
     // Sử dụng instance axios chung từ utility
     const API = api
+
+    // WebSocket setup for realtime notifications
+    const { on, off, isConnected } = useWebSocket()
 
     const fetchNotifications = async () => {
         loading.value = true
@@ -62,6 +66,45 @@ export function useNotification() {
         }
     }
 
+    // Setup WebSocket listener for realtime notifications
+    const setupWebSocketListener = () => {
+        if (!isConnected.value) {
+            return
+        }
+
+        // Listen for new notifications
+        on('new-notification', (notification) => {
+            // Check if notification already exists
+            const exists = notifications.value.some(n => n.id === notification.id)
+            if (!exists) {
+                // Add to beginning of array
+                notifications.value.unshift(notification)
+                
+                // Show push notification
+                const now = Date.now()
+                if (now - lastNotificationTime.value > 1000) {
+                    push.success({
+                        title: notification.data?.title || 'Thông báo mới',
+                        message: notification.data?.message || 'Bạn có thông báo mới',
+                        duration: 5000,
+                        icon: 'fas fa-bell'
+                    })
+                    lastNotificationTime.value = now
+                }
+            }
+        })
+    }
+
+    // Remove WebSocket listener
+    const removeWebSocketListener = () => {
+        off('new-notification')
+    }
+
+    // Auto cleanup
+    onUnmounted(() => {
+        removeWebSocketListener()
+    })
+
     // Hàm để test thông báo push
     const testNotification = (type = 'success') => {
         const messages = {
@@ -96,6 +139,8 @@ export function useNotification() {
         loading,
         error,
         fetchNotifications,
-        testNotification
+        testNotification,
+        setupWebSocketListener,
+        removeWebSocketListener
     }
 }

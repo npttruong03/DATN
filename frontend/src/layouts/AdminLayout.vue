@@ -61,9 +61,10 @@ import MobileSidebar from '../components/admin/layouts/MobileSidebar.vue'
 import NotificationDropdown from '../components/common/NotificationDropdown.vue'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useNotification } from '../composable/useNotification'
+import { useWebSocket } from '../composable/useWebSocket'
 
-const { notifications, fetchNotifications, loading } = useNotification()
-let intervalId = null
+const { notifications, fetchNotifications, loading, setupWebSocketListener, removeWebSocketListener } = useNotification()
+const { connect, isConnected } = useWebSocket()
 
 const isMobileOpen = ref(false)
 
@@ -75,15 +76,25 @@ const closeSidebar = () => {
     isMobileOpen.value = false
 }
 
-onMounted(() => {
-    fetchNotifications()
-    intervalId = setInterval(() => {
-        fetchNotifications()
-    }, 5000)
+onMounted(async () => {
+    // Fetch initial notifications chỉ lần đầu
+    await fetchNotifications()
+    
+    // Connect WebSocket and setup listener
+    if (!isConnected.value) {
+        connect()
+    }
+    
+    // Wait a bit for WebSocket to connect, then setup listener
+    setTimeout(() => {
+        setupWebSocketListener()
+    }, 1000)
+    
+    // Không còn polling - chỉ dùng WebSocket
 })
 
 onUnmounted(() => {
-    clearInterval(intervalId)
+    removeWebSocketListener()
 })
 </script>
 

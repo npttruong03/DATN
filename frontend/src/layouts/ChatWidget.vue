@@ -186,8 +186,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch, onUnmounted, computed } from 'vue'
+import { ref, nextTick, watch, onUnmounted, computed, onMounted } from 'vue'
 import { useChat } from '../composable/useChat'
+import { useWebSocket } from '../composable/useWebSocket'
 
 // Khai báo API base URL
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
@@ -234,11 +235,17 @@ const modalImage = ref('')
 const messagesContainer = ref(null)
 const fileInput = ref(null)
 const loadingAdmins = ref(false)
-const pollingInterval = ref(null)
+
+// WebSocket setup
+const { connect, disconnect, on, off, emit, isConnected } = useWebSocket()
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value && isAuthenticated.value) {
+    // Connect WebSocket when opening chat
+    if (!isConnected.value) {
+      connect()
+    }
     loadAdmins()
     loadUnreadCount()
     document.documentElement.classList.add('chatwidget-open')
@@ -288,16 +295,35 @@ const loadMessages = async () => {
   }
 }
 
-const startPolling = () => {
-  stopPolling()
-  pollingInterval.value = setInterval(() => {
-    if (currentAdmin.value && isOpen.value) loadMessages()
-  }, 3000)
+// WebSocket event handlers
+const setupWebSocketListeners = () => {
+  // Listen for new messages
+  on('new-message', (message) => {
+    if (currentAdmin.value && String(message.senderId) === String(currentAdmin.value.id)) {
+      // Check if message already exists
+      const exists = messages.value.some(m => m.id === message.id)
+      if (!exists) {
+        messages.value.push(message)
+        nextTick(() => scrollToBottom())
+        loadUnreadCount()
+      }
+    }
+  })
+
+  // Listen for message read notifications
+  on('message-read', (data) => {
+    const { messageId } = data
+    const messageIndex = messages.value.findIndex(m => m.id === messageId)
+    if (messageIndex !== -1) {
+      messages.value[messageIndex].is_read = true
+      messages.value[messageIndex].read_at = new Date().toISOString()
+    }
+  })
 }
 
-const stopPolling = () => {
-  if (pollingInterval.value) clearInterval(pollingInterval.value)
-  pollingInterval.value = null
+const removeWebSocketListeners = () => {
+  off('new-message')
+  off('message-read')
 }
 
 const sendMessage = async () => {
@@ -317,9 +343,14 @@ const sendMessage = async () => {
     selectedFile.value = null
     await nextTick()
     scrollToBottom()
-    await loadMessages()
-    const chatChannel = new BroadcastChannel('chat_channel')
-    chatChannel.postMessage({ type: 'new_message', userId: currentAdmin.value.id })
+
+    // Emit via WebSocket to receiver
+    if (isConnected.value) {
+      emit('private-message', {
+        receiverId: currentAdmin.value.id,
+        message: message
+      })
+    }
   } catch (error) {
     console.error('Lỗi khi gửi tin nhắn:', error)
   } finally {
@@ -381,9 +412,10 @@ const closeImageModal = () => {
 watch([isOpen, currentAdmin], ([open, admin]) => {
   if (open && admin) {
     loadMessages()
-    startPolling()
+    // Setup WebSocket listeners when chat opens
+    setupWebSocketListeners()
   } else {
-    stopPolling()
+    removeWebSocketListeners()
   }
 })
 
@@ -407,17 +439,27 @@ watch(isAuthenticated, (authenticated) => {
 watch(() => props.isAuthenticated, (newValue) => {
 }, { immediate: true })
 
+onMounted(() => {
+  // Connect WebSocket when component mounts if authenticated
+  if (isAuthenticated.value) {
+    connect()
+  }
+})
+
 onUnmounted(() => {
-  stopPolling()
+  removeWebSocketListeners()
+  disconnect()
   document.documentElement.classList.remove('chatwidget-open')
 })
 
-const chatChannel = new BroadcastChannel('chat_channel')
-chatChannel.onmessage = (event) => {
-  if (event.data.type === 'new_message' && user && String(event.data.userId) === String(user.id)) {
-    loadMessages()
+// Watch authentication status to connect/disconnect WebSocket
+watch(isAuthenticated, (authenticated) => {
+  if (authenticated) {
+    connect()
+  } else {
+    disconnect()
   }
-}
+}, { immediate: true })
 </script>
 
 <style scoped>
