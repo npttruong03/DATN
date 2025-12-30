@@ -314,7 +314,8 @@
 import { ref, computed, watch } from 'vue'
 import Badges from './Badges.vue'
 import { useProducts } from '../../../composable/useProducts'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import Swal from 'sweetalert2'
 
 const { getTemplateSheet, importFile, getProducts, bulkDeleteProducts } = useProducts()

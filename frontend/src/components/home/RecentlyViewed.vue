@@ -88,7 +88,8 @@ import QuickView from '../products/Quick-view.vue';
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import Swal from 'sweetalert2';
-import { push } from 'notivue';
+import { usePush } from 'notivue'
+const push = usePush();
 
 const props = defineProps({
     variant: { type: String, default: 'home' }

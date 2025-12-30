@@ -191,7 +191,8 @@
 import { ref, watch, computed, onMounted } from 'vue'
 import { useCart } from '../../composable/useCart'
 import { useInventories } from '../../composable/useInventorie'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const props = defineProps({
     show: Boolean,

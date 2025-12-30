@@ -95,7 +95,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const router = useRouter()
 const isPending = ref(true) // trạng thái mới

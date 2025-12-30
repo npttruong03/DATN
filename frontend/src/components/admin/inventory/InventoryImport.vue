@@ -204,7 +204,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 // import { useProducts } from '~/composables/useProducts';
 import { useProducts } from '../../../composable/useProducts';
 import { useInventories } from '../../../composable/useInventorie';

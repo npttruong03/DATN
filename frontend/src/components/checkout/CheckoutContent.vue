@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import AddressList from './AddressList.vue'
 import AddressForm from './AddressForm.vue'
 import PaymentMethods from './PaymentMethods.vue'

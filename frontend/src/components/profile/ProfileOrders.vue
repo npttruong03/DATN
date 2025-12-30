@@ -1185,7 +1185,8 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import { useOrder } from '../../composable/useOrder'
 import { useReviews } from '../../composable/useReviews'
 import { useAuth } from '../../composable/useAuth'

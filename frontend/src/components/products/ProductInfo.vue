@@ -210,7 +210,8 @@
 <script setup>
 import { ref, computed, watch, onUnmounted, onMounted } from 'vue'
 import { useCoupon } from '../../composable/useCoupon'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import CouponPanel from '../common/CouponPanel.vue'
 
 const props = defineProps({

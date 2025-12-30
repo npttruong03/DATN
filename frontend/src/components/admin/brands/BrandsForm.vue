@@ -93,7 +93,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBrand } from '../../../composable/useBrand';
 import { useBrandStore } from '../../../stores/brands';
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const brandStore = useBrandStore()
 const router = useRouter()

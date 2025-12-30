@@ -102,7 +102,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePages } from '../../../composable/usePages'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import CKEditor from '../../CKEditor.vue'
 
 const router = useRouter()

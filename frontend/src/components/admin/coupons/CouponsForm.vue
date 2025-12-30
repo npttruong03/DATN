@@ -114,7 +114,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useCoupon } from '../../../composable/useCoupon'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import { useRouter } from 'vue-router'
 
 const { createCoupon } = useCoupon()

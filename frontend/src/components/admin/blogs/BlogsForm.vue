@@ -114,7 +114,8 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBlog } from '../../../composable/useBlogs'
 import CKEditor from '../../CKEditor.vue'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 // Define props
 const props = defineProps({

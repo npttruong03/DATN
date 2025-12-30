@@ -88,7 +88,8 @@
 import { ref, onMounted } from 'vue'
 import { useContact } from '../../composable/useContact'
 import { useSettings } from '../../composable/useSettingsApi'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { sendContact } = useContact()
 const { settings, fetchSettings } = useSettings()

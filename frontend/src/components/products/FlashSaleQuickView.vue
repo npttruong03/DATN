@@ -174,7 +174,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useCart } from '../../composable/useCart'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const props = defineProps({
     show: Boolean,

@@ -137,7 +137,8 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useAddress } from '../../composable/useAddress'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const addressService = useAddress()
 

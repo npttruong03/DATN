@@ -132,7 +132,8 @@ import { onMounted, ref } from 'vue'
 import BlogTable from './BlogsTable.vue'
 import { useBlog } from '../../../composable/useBlogs'
 import Swal from 'sweetalert2'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { blogs, loading, error, pagination, categories, categoriesLoading, fetchBlogs, deleteBlog, fetchCategories, createCategory, updateCategory, deleteCategory } = useBlog()
 

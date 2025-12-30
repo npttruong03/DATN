@@ -274,7 +274,8 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useFlashsale } from '../../../composable/useFlashsale'
 import { useProducts } from '../../../composable/useProducts'
 import { useRouter } from 'vue-router'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 function formatPrice(price) {
     if (price === null || price === undefined || price === '') return 'N/A'
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(price))

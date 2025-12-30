@@ -119,7 +119,8 @@ import ProductsTable from './ProductsTable.vue'
 import { useProducts } from '../../../composable/useProducts'
 import { useCategoryStore } from '../../../stores/categories'
 import { useBrandStore } from '../../../stores/brands'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import Swal from 'sweetalert2'
 
 const categoryStore = useCategoryStore()

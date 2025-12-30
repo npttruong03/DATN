@@ -313,7 +313,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useFlashsale } from '../../../composable/useFlashsale'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import Swal from 'sweetalert2'
 
 const { getFlashSales, deleteFlashSale, getFlashSaleStatistics, toggleFlashSaleStatus, processRepeat: processRepeatAPI } = useFlashsale()

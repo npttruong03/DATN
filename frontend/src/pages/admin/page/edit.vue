@@ -104,7 +104,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePages } from '../../../composable/usePages'
 import { useHead } from '@vueuse/head';
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import CKEditor from '../../../components/CKEditor.vue'
 useHead({
     title: "Sửa trang page | DEVGANG",

@@ -75,7 +75,8 @@ import { ref, reactive } from 'vue'
 import { useAuth } from '../../composable/useAuth'
 import { useAuthStore } from '../../stores/auth'
 import Cookies from 'js-cookie'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { register } = useAuth()
 const authStore = useAuthStore()

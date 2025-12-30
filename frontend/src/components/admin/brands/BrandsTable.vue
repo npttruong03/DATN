@@ -199,7 +199,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import Swal from 'sweetalert2'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const props = defineProps({
     brands: {

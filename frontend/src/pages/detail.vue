@@ -45,7 +45,8 @@ import { useReviews } from '../composable/useReviews'
 import { useAuth } from '../composable/useAuth'
 import { useCart } from '../composable/useCart'
 import { useRecentlyViewed } from '../composable/useRecentlyViewed'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const route = useRoute()
 const { getProductBySlug, getProducts } = useProducts()

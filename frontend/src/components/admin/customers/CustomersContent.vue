@@ -27,7 +27,8 @@
 import { ref, onMounted, computed } from 'vue'
 import CustomersTable from './CustomersTable.vue'
 import { useAuth } from '../../../composable/useAuth'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import Swal from 'sweetalert2'
 
 const { getListUser, updateUserByAdmin, updateCustomerStatus, deleteUser, createUserByAdmin, user } = useAuth()

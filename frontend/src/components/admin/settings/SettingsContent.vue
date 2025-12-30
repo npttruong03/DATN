@@ -141,7 +141,8 @@
 import { ref, onMounted, computed } from 'vue'
 import SettingCard from './SettingsCard.vue'
 import useSettings from '../../../composable/useSettingsApi'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { settings, fetchSettings, updateSettings } = useSettings()
 

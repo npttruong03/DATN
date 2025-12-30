@@ -326,7 +326,8 @@ import { ref, onMounted } from 'vue'
 import { useProducts } from '../../../composable/useProducts'
 import CKEditor from '../../CKEditor.vue'
 import { useRouter } from 'vue-router'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 import { useCategoryStore } from '../../../stores/categories'
 import { useBrandStore } from '../../../stores/brands'

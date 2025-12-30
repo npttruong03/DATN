@@ -37,7 +37,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useBrandStore } from '../../../stores/brands'
 import { useBrand } from '../../../composable/useBrand'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import BrandsTable from './BrandsTable.vue'
 
 const { deleteBrand, bulkDeleteBrands } = useBrand()

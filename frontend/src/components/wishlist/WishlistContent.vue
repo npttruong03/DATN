@@ -57,7 +57,8 @@ import { ref, onMounted } from 'vue'
 import WishlistCard from './WishlistCard.vue'
 import { useProducts } from '../../composable/useProducts'
 import { useRouter } from 'vue-router'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const router = useRouter()
 const { getFavoriteProducts } = useProducts()

@@ -110,7 +110,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCoupon } from '../../../composable/useCoupon'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const route = useRoute()
 const router = useRouter()

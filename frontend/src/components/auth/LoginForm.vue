@@ -76,7 +76,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../../composable/useAuth'
 import { useAuthStore } from '../../stores/auth'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const form = reactive({ email: '', password: '' })
 const error = reactive({ email: '', password: '' })

@@ -388,7 +388,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useContact } from '../../../composable/useContact'
 import Swal from 'sweetalert2'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const {
     fetchContacts,

@@ -129,7 +129,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useCouponStore } from '../../stores/coupons'
 import { useCoupon } from '../../composable/useCoupon'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import Cookies from 'js-cookie'
 
 const { getMyCoupons, claimCoupon } = useCoupon();

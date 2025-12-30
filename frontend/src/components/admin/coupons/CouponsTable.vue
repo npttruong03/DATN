@@ -276,7 +276,8 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useCoupon } from '../../../composable/useCoupon'
 import Swal from 'sweetalert2'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 const emit = defineEmits(['delete', 'filter-change'])
 
 const { getCoupons, deleteCoupon } = useCoupon()

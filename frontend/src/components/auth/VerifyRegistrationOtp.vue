@@ -46,7 +46,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../../composable/useAuth'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import api from '../../utils/api'
 
 const router = useRouter()

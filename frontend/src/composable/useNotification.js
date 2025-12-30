@@ -1,7 +1,8 @@
 import { ref, onUnmounted } from 'vue'
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 import api from '../utils/api'
 import { useWebSocket } from './useWebSocket'
 

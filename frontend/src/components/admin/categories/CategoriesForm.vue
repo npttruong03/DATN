@@ -97,7 +97,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCategoryStore } from '../../../stores/categories'
 import { useCategories } from '../../../composable/useCategories'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { createCategory } = useCategories()
 const router = useRouter()

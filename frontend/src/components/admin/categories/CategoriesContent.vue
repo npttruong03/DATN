@@ -36,7 +36,8 @@ import { ref, onMounted, computed } from 'vue'
 import CategoriesTable from './CategoriesTable.vue'
 import { useCategoryStore } from '../../../stores/categories'
 import { useCategories } from '../../../composable/useCategories'
-import { push } from 'notivue'
+import { usePush } from 'notivue'
+const push = usePush()
 
 const { deleteCategory, getCategories, bulkDeleteCategories } = useCategories()
 const categoryStore = useCategoryStore()
