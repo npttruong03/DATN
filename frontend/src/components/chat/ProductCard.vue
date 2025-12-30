@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useCart } from '../../composable/useCart'
 
 const props = defineProps({
@@ -105,16 +105,17 @@ const selectedVariants = reactive({})
 const isAddingToCart = reactive({})
 
 // Khởi tạo variants mặc định
-props.products.forEach(product => {
-  const defaultSize = product.default_size || (product.available_sizes?.[0] || 'Mặc định')
-  const defaultColor = product.default_color || (product.available_colors?.[0] || 'Mặc định')
+const initializeVariants = () => {
+  props.products.forEach(product => {
+    const defaultSize = product.default_size || (product.available_sizes?.[0] || 'Mặc định')
+    const defaultColor = product.default_color || (product.available_colors?.[0] || 'Mặc định')
 
-  selectedVariants[product.id] = {
-    size: defaultSize,
-    color: defaultColor,
-    quantity: 1,
-    variantId: null
-  }
+    selectedVariants[product.id] = {
+      size: defaultSize,
+      color: defaultColor,
+      quantity: 1,
+      variantId: null
+    }
 
   // Xử lý trường hợp product không có variants
   if (!product.variants || product.variants.length === 0) {
@@ -148,6 +149,7 @@ props.products.forEach(product => {
 
 function onVariantChange(product) {
   const selected = selectedVariants[product.id]
+  if (!product.variants || product.variants.length === 0) {
   if (!product.variants || product.variants.length === 0) {
     selected.variantId = product.id
     selected.quantity = 1
@@ -285,7 +287,10 @@ async function addToCartHandler(product) {
     let variantId = selectedVariants[product.id].variantId
     let price = product.discount_price || product.price || 0
 
+    // Xử lý trường hợp variantId === product.id (không có variants)
     if (variantId === product.id) {
+      if (product.variants && product.variants.length > 0) {
+        // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
       if (product.variants && product.variants.length > 0) {
         // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
         variant = product.variants[0]
@@ -293,14 +298,17 @@ async function addToCartHandler(product) {
         price = variant.price || price
       } else {
         // Thực sự không có variants, tạo variant object tạm
+        // Thực sự không có variants, tạo variant object tạm
         variant = {
           id: product.id,
           size: selected.size || 'Mặc định',
           color: selected.color || 'Mặc định',
           price
         }
+        // Giữ nguyên variantId = product.id
       }
     } else {
+      // Tìm variant từ danh sách variants
       variant = product.variants?.find(v => v.id === selected.variantId)
       if (variant) {
         price = variant.price || price
@@ -331,6 +339,8 @@ async function addToCartHandler(product) {
     }
   } catch (error) {
     console.error('Add to cart error:', error)
+    const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
+    alert(errorMessage)
     const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
     alert(errorMessage)
   } finally {
