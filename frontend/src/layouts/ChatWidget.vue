@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isAuthenticated" class="fixed bottom-4 right-4 z-50">
+  <div v-if="isAuthenticated" class="fixed bottom-4 right-4 z-[10000]">
     <!-- Chat Toggle Button -->
     <button v-if="!isOpen" @click="toggleChat"
       class="chat-button text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:opacity-90 transition-all relative">
@@ -178,7 +178,7 @@
     </div>
 
     <!-- Image Modal -->
-    <div v-if="showImageModal" class="fixed inset-0 image-modal flex items-center justify-center z-50"
+    <div v-if="showImageModal" class="fixed inset-0 image-modal flex items-center justify-center z-[10001]"
       @click="closeImageModal">
       <img :src="modalImage" class="max-w-[90%] max-h-[90%] object-contain">
     </div>
@@ -469,7 +469,7 @@ watch(isAuthenticated, (authenticated) => {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 10000;
   transition: all 0.3s ease;
   display: flex !important;
   opacity: 1 !important;
@@ -541,7 +541,7 @@ watch(isAuthenticated, (authenticated) => {
   padding: 10px 18px;
   font-size: 15px;
   color: #333;
-  z-index: 1001;
+  z-index: 10001;
   white-space: nowrap;
   border: 1px solid rgba(129, 170, 204, 0.2);
   display: block !important;
@@ -553,7 +553,7 @@ watch(isAuthenticated, (authenticated) => {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 10000;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(129, 170, 204, 0.2);
 }

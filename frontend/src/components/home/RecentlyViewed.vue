@@ -41,7 +41,7 @@
     </div>
 
     <!-- Default/home variant -->
-    <div v-else-if="recentlyViewed.length > 0" class="mt-3 bg-white p-4 md:p-8 rounded-[5px]">
+    <!-- <div v-else-if="recentlyViewed.length > 0" class="mt-3 bg-white p-4 md:p-8 rounded-[5px]">
         <div class="flex justify-between items-center mb-3">
             <h2 class="text-lg md:text-2xl font-semibold text-gray-800 flex items-center gap-2">
                 Sản Phẩm Đã Xem Gần Đây
@@ -77,7 +77,7 @@
         </div>
 
         <QuickView :show="showQuickView" :product="quickViewProduct" @close="closeQuickView" />
-    </div>
+    </div> -->
 </template>
 
 <script setup>

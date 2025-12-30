@@ -555,7 +555,7 @@ export default {
   position: fixed;
   bottom: 90px;
   right: 20px;
-  z-index: 10;
+  z-index: 10000;
   font-family: 'Inter', sans-serif;
   max-width: 100vw;
   max-height: 100vh;
@@ -1073,7 +1073,7 @@ export default {
   .ai-chatbot {
     bottom: 80px;
     right: 16px;
-    z-index: 9999;
+    z-index: 10000;
   }
 
   .chat-window {

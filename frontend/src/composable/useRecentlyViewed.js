@@ -19,7 +19,43 @@ const loadRecentlyViewed = () => {
             // Sắp xếp theo thời gian xem gần nhất và giới hạn số lượng
             const sorted = parsed.sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt));
             // Đảm bảo chỉ lấy tối đa MAX_RECENTLY_VIEWED sản phẩm
-            recentlyViewed.value = sorted.slice(0, MAX_RECENTLY_VIEWED);
+            const limited = sorted.slice(0, MAX_RECENTLY_VIEWED);
+            
+            // Đảm bảo images có cấu trúc đúng cho mỗi sản phẩm
+            recentlyViewed.value = limited.map(product => {
+                // Nếu không có images hoặc images rỗng, kiểm tra main_image
+                if (!product.images || product.images.length === 0) {
+                    if (product.main_image) {
+                        product.images = [{
+                            image_path: product.main_image.image_path || product.main_image.image_url || product.main_image,
+                            is_main: 1
+                        }];
+                    } else if (product.mainImage) {
+                        product.images = [{
+                            image_path: product.mainImage.image_path || product.mainImage.image_url || product.mainImage,
+                            is_main: 1
+                        }];
+                    } else {
+                        product.images = [];
+                    }
+                } else {
+                    // Đảm bảo mỗi image có cấu trúc đúng
+                    product.images = product.images.map(img => {
+                        if (typeof img === 'string') {
+                            return {
+                                image_path: img,
+                                is_main: 0
+                            };
+                        }
+                        return {
+                            image_path: img.image_path || img.path || img.image_url || img,
+                            is_main: img.is_main !== undefined ? img.is_main : 0
+                        };
+                    });
+                }
+                
+                return product;
+            });
             
             // Nếu dữ liệu cũ vượt quá giới hạn, cập nhật localStorage
             if (parsed.length > MAX_RECENTLY_VIEWED) {
@@ -47,8 +83,34 @@ const addToRecentlyViewed = (product) => {
         const existingIndex = recentlyViewed.value.findIndex(p => p.id === product.id);
         
         if (existingIndex !== -1) {
-            // Cập nhật thời gian xem
+            // Cập nhật thời gian xem và images nếu có thay đổi
             recentlyViewed.value[existingIndex].viewedAt = new Date().toISOString();
+            
+            // Cập nhật images nếu sản phẩm có images mới
+            if (product.images && product.images.length > 0) {
+                recentlyViewed.value[existingIndex].images = product.images.map(img => {
+                    if (typeof img === 'string') {
+                        return {
+                            image_path: img,
+                            is_main: 0
+                        };
+                    }
+                    return {
+                        image_path: img.image_path || img.path || img.image_url || img,
+                        is_main: img.is_main !== undefined ? img.is_main : 0
+                    };
+                });
+            } else if (product.main_image && (!recentlyViewed.value[existingIndex].images || recentlyViewed.value[existingIndex].images.length === 0)) {
+                recentlyViewed.value[existingIndex].images = [{
+                    image_path: product.main_image.image_path || product.main_image.image_url || product.main_image,
+                    is_main: 1
+                }];
+            } else if (product.mainImage && (!recentlyViewed.value[existingIndex].images || recentlyViewed.value[existingIndex].images.length === 0)) {
+                recentlyViewed.value[existingIndex].images = [{
+                    image_path: product.mainImage.image_path || product.mainImage.image_url || product.mainImage,
+                    is_main: 1
+                }];
+            }
         } else {
             // Thêm sản phẩm mới - giữ nguyên cấu trúc dữ liệu gốc
             const productData = {
@@ -69,10 +131,30 @@ const addToRecentlyViewed = (product) => {
             
             // Đảm bảo images có cấu trúc đúng
             if (productData.images && productData.images.length > 0) {
-                productData.images = productData.images.map(img => ({
-                    image_path: img.image_path || img.path || img,
-                    is_main: img.is_main || 0
-                }));
+                productData.images = productData.images.map(img => {
+                    if (typeof img === 'string') {
+                        return {
+                            image_path: img,
+                            is_main: 0
+                        };
+                    }
+                    return {
+                        image_path: img.image_path || img.path || img.image_url || img,
+                        is_main: img.is_main !== undefined ? img.is_main : 0
+                    };
+                });
+            } else if (product.main_image) {
+                // Nếu không có images nhưng có main_image
+                productData.images = [{
+                    image_path: product.main_image.image_path || product.main_image.image_url || product.main_image,
+                    is_main: 1
+                }];
+            } else if (product.mainImage) {
+                // Nếu không có images nhưng có mainImage
+                productData.images = [{
+                    image_path: product.mainImage.image_path || product.mainImage.image_url || product.mainImage,
+                    is_main: 1
+                }];
             }
             
             recentlyViewed.value.unshift(productData);
