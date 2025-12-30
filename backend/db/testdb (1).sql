@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 03, 2025 at 02:20 AM
+-- Generation Time: Dec 30, 2025 at 08:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,6 +39,14 @@ CREATE TABLE `addresses` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `addresses`
+--
+
+INSERT INTO `addresses` (`id`, `full_name`, `phone`, `province`, `district`, `ward`, `street`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, 'Nguyễn Phúc Trường', '0354422737', 'Đà Nẵng', 'Quận Ngũ Hành Sơn', 'Phường Hoà Quý', '428 trần đại nghĩa', 14, '2025-11-27 12:43:21', '2025-11-27 12:43:21'),
+(2, 'Nguyễn Phúc Trường', '0354422737', 'Quảng Trị', 'Thị xã Quảng Trị', 'Xã Hải Lệ', 'đội 1 thôn tích tường, xã hải lệ, thị xã quản trị tỉnh quảng trị', 13, '2025-12-28 17:55:18', '2025-12-28 17:55:18');
 
 -- --------------------------------------------------------
 
@@ -152,6 +160,13 @@ CREATE TABLE `carts` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `carts`
+--
+
+INSERT INTO `carts` (`id`, `user_id`, `session_id`, `variant_id`, `quantity`, `price`, `created_at`, `updated_at`) VALUES
+(6, 23, NULL, 54, 2, 499000, '2025-12-29 14:34:33', '2025-12-29 14:34:33');
 
 -- --------------------------------------------------------
 
@@ -368,7 +383,26 @@ INSERT INTO `images` (`id`, `image_path`, `is_main`, `product_id`, `created_at`,
 (32, 'products/YbtRTzuLqbQwp5bYcHp7hKxXHaaHHw1fYoVs0JS3.jpg', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49', NULL),
 (33, 'products/4XzGri1snp61sjuf86E2GXDiTm1QEHrFy6DP2lS7.jpg', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49', NULL),
 (34, 'products/L77fbjeg3ZIiZ6XwhgqyTQWocGAvncqKLAEP18yV.jpg', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49', NULL),
-(35, 'products/4X1yk4hzUiTi0lQm859WQFffjSxgTTINAsbVSwim.jpg', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49', NULL);
+(35, 'products/4X1yk4hzUiTi0lQm859WQFffjSxgTTINAsbVSwim.jpg', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49', NULL),
+(36, 'products/0s6qoYZWBQRazOb9S7RUZABdeBmZ1ZUBio8rORxH.jpg', 1, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29', NULL),
+(37, 'products/uLIGSg5O7WrEIszqcBYr68nhmh2IV43SZpXm9yxA.jpg', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29', NULL),
+(38, 'products/s5UKg2H8hTskcUOF4HSTRfdyZnjaLgP9kxmlrfjM.jpg', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29', NULL),
+(39, 'products/9Aabz32a75GCGnzsG50T4AlXDgRnPIb8RakynGLb.jpg', 1, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59', NULL),
+(40, 'products/9lifmAWs61zjeADR5N48DSsOuKejO1YN7gioucLH.jpg', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59', NULL),
+(41, 'products/bwnBaFgUc9A9CWfmeVY9piL05hXa13BZZKjqtHGp.jpg', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59', NULL),
+(42, 'products/RYJru28BJEmBKg4MlFnLUOotBayEkpPG54cC9Q57.jpg', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59', NULL),
+(43, 'products/dENx4EIawOzL6kJvwJtTf0ZIEWUnPyGtypnfkXyv.jpg', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41', 51),
+(44, 'products/5C8R7lYrJFWLVyPBIbXPI90PsxKiuwT4BiLHt4ij.jpg', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41', 51),
+(45, 'products/JSXXpYcpHiVzVMHwqvXYcJiOmIeyA34kqWX8Zn37.jpg', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41', 52),
+(46, 'products/F9MNE5GVXyFpkjHVAoRpsBl8CQ83Cn8Rq9kN2Uqm.jpg', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41', 52),
+(47, 'products/p81XgMMCHJ6IoKfqMlbIWDD2iy8v8eF1tebaAJGd.jpg', 0, 10, '2025-12-28 16:19:05', '2025-12-28 16:19:05', 53),
+(48, 'products/SKiT1IOyWJjktAwlXsX5N8aK51CkMugWlrkyysLg.jpg', 0, 10, '2025-12-28 16:19:05', '2025-12-28 16:19:05', 54),
+(49, 'products/otZWr9vgGQmhYjRxIuCdybbRlOV8vh09XbcSwawm.jpg', 0, 9, '2025-12-28 16:20:44', '2025-12-28 16:20:44', 55),
+(50, 'products/UBT8XW1f5ztx83FTOIeX0VqWrBy5Ef26S469IqI2.jpg', 0, 9, '2025-12-28 16:20:44', '2025-12-28 16:20:44', 56),
+(51, 'products/bzQvHEsblhtO77IRXr3g97m4MZcXYtwAjP8IJhBZ.jpg', 0, 8, '2025-12-28 16:21:49', '2025-12-28 16:21:49', 57),
+(52, 'products/WOrz4NZcNWrxDhOvUQQlNeFb7LKADFbzIHS2CQKn.jpg', 0, 8, '2025-12-28 16:21:49', '2025-12-28 16:21:49', 58),
+(53, 'products/KG6fycTnJgvkDirxtKi2kuAK7xwnNVVXOQITaJg1.jpg', 0, 7, '2025-12-28 16:23:18', '2025-12-28 16:23:18', 59),
+(54, 'products/e0Ay74A97I47Ui7G09b0dktAYoOKQ3fiE6a9W2AM.jpg', 0, 7, '2025-12-28 16:23:18', '2025-12-28 16:23:18', 60);
 
 -- --------------------------------------------------------
 
@@ -389,9 +423,7 @@ CREATE TABLE `inventories` (
 --
 
 INSERT INTO `inventories` (`id`, `quantity`, `created_at`, `updated_at`, `variant_id`) VALUES
-(1, 10, '2025-10-26 14:53:51', '2025-10-26 14:53:51', 3),
-(2, 10, '2025-10-26 14:53:51', '2025-10-26 14:53:51', 4),
-(3, 30, '2025-10-26 14:55:02', '2025-10-26 14:55:02', 36),
+(3, 28, '2025-10-26 14:55:02', '2025-12-29 16:16:56', 36),
 (4, 15, '2025-10-26 14:55:02', '2025-10-26 14:55:02', 37),
 (5, 18, '2025-10-26 14:55:02', '2025-10-26 14:55:02', 40),
 (6, 19, '2025-10-26 14:55:29', '2025-10-26 14:55:29', 39),
@@ -406,7 +438,26 @@ INSERT INTO `inventories` (`id`, `quantity`, `created_at`, `updated_at`, `varian
 (15, 40, '2025-10-28 06:14:55', '2025-10-28 06:14:55', 29),
 (16, 40, '2025-10-28 06:14:55', '2025-10-28 06:14:55', 28),
 (17, 40, '2025-10-28 06:15:18', '2025-10-28 06:15:18', 26),
-(18, 40, '2025-10-28 06:15:59', '2025-10-28 06:15:59', 10);
+(26, 130, '2025-12-28 16:28:00', '2025-12-28 16:28:00', 60),
+(27, 180, '2025-12-28 16:28:29', '2025-12-28 16:28:29', 59),
+(28, 150, '2025-12-28 16:29:29', '2025-12-28 16:29:29', 57),
+(29, 140, '2025-12-28 16:29:29', '2025-12-28 16:29:29', 58),
+(30, 180, '2025-12-28 16:31:28', '2025-12-28 16:31:28', 55),
+(31, 200, '2025-12-28 16:31:28', '2025-12-28 16:31:28', 56),
+(32, 140, '2025-12-28 16:32:35', '2025-12-28 16:32:35', 53),
+(33, 189, '2025-12-28 16:32:35', '2025-12-28 18:33:01', 54),
+(34, 170, '2025-12-28 16:33:57', '2025-12-28 16:33:57', 51),
+(35, 300, '2025-12-28 16:33:57', '2025-12-28 16:33:57', 52),
+(36, 150, '2025-12-28 16:35:17', '2025-12-28 16:35:17', 50),
+(37, 150, '2025-12-28 16:36:42', '2025-12-28 16:36:42', 49),
+(38, 139, '2025-12-28 16:36:42', '2025-12-29 16:10:38', 48),
+(39, 140, '2025-12-28 16:36:42', '2025-12-28 16:36:42', 47),
+(40, 150, '2025-12-28 16:36:42', '2025-12-28 16:36:42', 46),
+(41, 140, '2025-12-28 16:38:21', '2025-12-28 16:38:21', 41),
+(42, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', 42),
+(43, 160, '2025-12-28 16:38:21', '2025-12-28 16:38:21', 43),
+(44, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', 44),
+(45, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', 45);
 
 -- --------------------------------------------------------
 
@@ -457,6 +508,15 @@ CREATE TABLE `messengers` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `messengers`
+--
+
+INSERT INTO `messengers` (`id`, `user1_id`, `user2_id`, `messages`, `created_at`, `updated_at`) VALUES
+(1, 13, 14, '[{\"id\":\"69286e40059f1\",\"sender_id\":14,\"message\":\"xin ch\\u00e0o\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-11-27 22:29:04\",\"read_at\":\"2025-11-27 22:29:30\"},{\"id\":\"69286e668437b\",\"sender_id\":13,\"message\":\"ch\\u00e0o b\\u1ea1n\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-11-27 22:29:42\",\"read_at\":\"2025-11-27 22:29:45\"},{\"id\":\"69286e80d96ff\",\"sender_id\":14,\"message\":\"shop c\\u00f3 \\u00e1o phao kh\\u00f4ng\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-11-27 22:30:08\",\"read_at\":\"2025-11-27 22:30:18\"},{\"id\":\"69286e95450ba\",\"sender_id\":14,\"message\":\"kh\\u00f4ng \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-11-27 22:30:29\",\"read_at\":\"2025-11-27 22:30:38\"},{\"id\":\"69286eb0de656\",\"sender_id\":13,\"message\":\"kh\\u00f4ng c\\u00f3 \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-11-27 22:30:56\",\"read_at\":\"2025-11-27 22:30:58\"},{\"id\":\"6952a3922c889\",\"sender_id\":14,\"message\":\"xin ch\\u00e0o\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:51:46\",\"read_at\":\"2025-12-29 22:52:17\"},{\"id\":\"6952a3bd7af2d\",\"sender_id\":13,\"message\":\"ch\\u00e0o b\\u1ea1n \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:52:29\",\"read_at\":\"2025-12-29 22:54:34\"},{\"id\":\"6952a3e7438c7\",\"sender_id\":14,\"message\":\"t\\u00f4i c\\u1ea7n mua \\u00e1o\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:53:11\",\"read_at\":\"2025-12-29 22:53:14\"},{\"id\":\"6952a4dae0486\",\"sender_id\":13,\"message\":\"v\\u00e2ng \\u1ea1 b\\u1ea1n c\\u1ea7n mua \\u00e1o g\\u00ec \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:57:14\",\"read_at\":\"2025-12-29 23:09:01\"},{\"id\":\"6952a4f1ce855\",\"sender_id\":14,\"message\":\"t\\u00f4i c\\u1ea7n mua ao thun nike\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:57:37\",\"read_at\":\"2025-12-29 22:57:50\"},{\"id\":\"6952a51859967\",\"sender_id\":13,\"message\":\"b\\u1ea1n mu\\u1ed1n m\\u1eb7c size g\\u00ec \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 22:58:16\",\"read_at\":\"2025-12-29 23:09:01\"},{\"id\":\"6952a58636c01\",\"sender_id\":14,\"message\":\"t\\u00f4i c\\u1ea7n m\\u1eb7c size xl \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 23:00:06\",\"read_at\":\"2025-12-29 23:07:04\"},{\"id\":\"6952a73328f33\",\"sender_id\":13,\"message\":\"m\\u00e0u g\\u00ec \\u1ea1\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 23:07:15\",\"read_at\":\"2025-12-29 23:09:01\"},{\"id\":\"6952a73e4f06d\",\"sender_id\":14,\"message\":\"m\\u00e0u \\u0111en nh\\u00e9\",\"attachment\":null,\"is_read\":true,\"sent_at\":\"2025-12-29 23:07:26\",\"read_at\":\"2025-12-29 23:09:39\"}]', '2025-11-27 15:29:04', '2025-12-29 16:09:39'),
+(2, 13, 13, '[{\"id\":\"69515feacdfe2\",\"sender_id\":13,\"message\":\"alo\",\"attachment\":null,\"is_read\":false,\"sent_at\":\"2025-12-28 23:50:50\",\"read_at\":null}]', '2025-12-28 16:50:50', '2025-12-28 16:50:50'),
+(3, 14, 18, '[{\"id\":\"6952a45278613\",\"sender_id\":14,\"message\":\"xin ch\\u00e0o\",\"attachment\":null,\"is_read\":false,\"sent_at\":\"2025-12-29 22:54:58\",\"read_at\":null}]', '2025-12-29 15:54:58', '2025-12-29 15:54:58');
 
 -- --------------------------------------------------------
 
@@ -528,6 +588,16 @@ CREATE TABLE `notifications` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
+('0b2eeebf-2d32-4163-a34e-fdb43d5ea99b', 'App\\Notifications\\NewOrderNotification', 'App\\Models\\User', 13, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"order_id\":5,\"message\":\"B\\u1ea1n c\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi #5\",\"user_id\":14,\"final_price\":650504,\"created_at\":\"2025-12-29T16:16:56.000000Z\"}', NULL, '2025-12-29 16:16:57', '2025-12-29 16:16:57'),
+('45caf947-51b0-4ebd-9151-8d2af4910e01', 'App\\Notifications\\NewOrderNotification', 'App\\Models\\User', 13, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"order_id\":1,\"message\":\"B\\u1ea1n c\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi #1\",\"user_id\":14,\"final_price\":948504,\"created_at\":\"2025-11-27T15:07:56.000000Z\"}', NULL, '2025-11-27 15:08:00', '2025-11-27 15:08:00'),
+('6dea133e-aa50-406d-a612-7d4c0429a481', 'App\\Notifications\\NewCommentNotification', 'App\\Models\\User', 13, '{\"title\":\"C\\u00f3 b\\u00ecnh lu\\u1eadn m\\u1edbi\",\"comment_id\":1,\"message\":\"B\\u00ecnh lu\\u1eadn m\\u1edbi: s\\u1ea3n ph\\u1ea9m r\\u1ea5t ch\\u1ea5t l\\u01b0\\u1ee3ng\",\"user_id\":\"14\",\"product_slug\":\"ao-so-mi-nam-uniqlo\",\"created_at\":\"2025-11-27T15:32:58.000000Z\"}', NULL, '2025-11-27 15:33:00', '2025-11-27 15:33:00'),
+('9d1601bf-4666-423f-ab34-d84337267b51', 'App\\Notifications\\NewOrderNotification', 'App\\Models\\User', 13, '{\"title\":\"C\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi\",\"order_id\":2,\"message\":\"B\\u1ea1n c\\u00f3 \\u0111\\u01a1n h\\u00e0ng m\\u1edbi #2\",\"user_id\":14,\"final_price\":949504,\"created_at\":\"2025-11-28T03:06:51.000000Z\"}', NULL, '2025-11-28 03:06:56', '2025-11-28 03:06:56');
+
 -- --------------------------------------------------------
 
 --
@@ -555,6 +625,17 @@ CREATE TABLE `orders` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `address_id`, `status`, `payment_method`, `payment_status`, `total_price`, `discount_price`, `final_price`, `coupon_id`, `note`, `tracking_code`, `return_status`, `cancel_reason`, `reject_reason`, `return_reason`, `created_at`, `updated_at`) VALUES
+(1, 14, 1, 'completed', 'cod', 'paid', 897000, 0, 948504, NULL, '', 'DG510703', NULL, NULL, NULL, NULL, '2025-11-27 15:07:56', '2025-11-27 15:32:08'),
+(2, 14, 1, 'pending', 'cod', 'pending', 898000, 0, 949504, NULL, '', 'DG707847', NULL, NULL, NULL, NULL, '2025-11-28 03:06:51', '2025-11-28 03:06:51'),
+(3, 13, 2, 'pending', 'vnpay', 'paid', 499000, 0, 538002, NULL, '', 'DG022824', NULL, NULL, NULL, NULL, '2025-12-28 18:33:01', '2025-12-28 18:33:01'),
+(4, 14, 1, 'pending', 'vnpay', 'paid', 299000, 0, 350504, NULL, '', 'DG716081', NULL, NULL, NULL, NULL, '2025-12-29 16:10:38', '2025-12-29 16:10:38'),
+(5, 14, 1, 'pending', 'cod', 'pending', 599000, 0, 650504, NULL, '', 'DG920926', NULL, NULL, NULL, NULL, '2025-12-29 16:16:56', '2025-12-29 16:16:56');
+
 -- --------------------------------------------------------
 
 --
@@ -572,6 +653,16 @@ CREATE TABLE `orders_details` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders_details`
+--
+
+INSERT INTO `orders_details` (`id`, `order_id`, `variant_id`, `quantity`, `price`, `original_price`, `total_price`, `created_at`, `updated_at`) VALUES
+(2, 2, 36, 1, 599000, 599000, 599000, '2025-11-28 03:06:51', '2025-11-28 03:06:51'),
+(4, 3, 54, 1, 499000, 499000, 499000, '2025-12-28 18:33:01', '2025-12-28 18:33:01'),
+(5, 4, 48, 1, 299000, 299000, 299000, '2025-12-29 16:10:38', '2025-12-29 16:10:38'),
+(6, 5, 36, 1, 599000, 599000, 599000, '2025-12-29 16:16:56', '2025-12-29 16:16:56');
 
 -- --------------------------------------------------------
 
@@ -645,16 +736,24 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `price`, `description`, `discount_price`, `slug`, `is_active`, `categories_id`, `brand_id`, `sold_count`, `deleted_at`, `created_at`, `updated_at`, `weight`, `length`, `width`, `height`) VALUES
-(1, 'Áo sơ mi nam Uniqlo', 299000, 'Áo sơ mi nam chất liệu cotton 100%, thiết kế đơn giản, phù hợp cho công sở và cuộc sống hàng ngày. Form dáng chuẩn, dễ phối đồ.', 249000, 'ao-so-mi-nam-uniqlo', 1, 6, 1, 156, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
+(1, 'Áo sơ mi nam Uniqlo', 299000, 'Áo sơ mi nam chất liệu cotton 100%, thiết kế đơn giản, phù hợp cho công sở và cuộc sống hàng ngày. Form dáng chuẩn, dễ phối đồ.', 249000, 'ao-so-mi-nam-uniqlo', 1, 6, 1, 161, NULL, '2025-10-05 15:55:09', '2025-12-29 16:10:38', 500, 20, 20, 20),
 (2, 'Áo thun nam Nike', 399000, 'Áo thun nam Nike với chất liệu cotton cao cấp, thiết kế thể thao năng động. Phù hợp cho tập luyện và cuộc sống hàng ngày.', 349000, 'ao-thun-nam-nike', 1, 7, 4, 234, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
-(3, 'Quần jean nam Zara', 599000, 'Quần jean nam Zara với chất liệu denim cao cấp, thiết kế hiện đại. Form dáng chuẩn, phù hợp cho mọi hoạt động.', 499000, 'quan-jean-nam-zara', 1, 8, 2, 189, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
+(3, 'Quần jean nam Zara', 599000, 'Quần jean nam Zara với chất liệu denim cao cấp, thiết kế hiện đại. Form dáng chuẩn, phù hợp cho mọi hoạt động.', 499000, 'quan-jean-nam-zara', 1, 8, 2, 191, NULL, '2025-10-05 15:55:09', '2025-12-29 16:16:56', 500, 20, 20, 20),
 (4, 'Áo thun nữ H&M', 199000, 'Áo thun nữ H&M chất liệu cotton mềm mại, thiết kế đơn giản. Nhiều màu sắc lựa chọn, phù hợp cho mọi lứa tuổi.', 149000, 'ao-thun-nu-hm', 1, 9, 3, 312, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
 (5, 'Váy liền nữ Zara', 899000, 'Váy liền nữ Zara thiết kế thanh lịch, chất liệu vải cao cấp. Phù hợp cho các dịp đặc biệt và công việc.', 799000, 'vay-lien-nu-zara', 1, 10, 2, 145, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
 (6, 'Áo sơ mi nữ Uniqlo', 399000, 'Áo sơ mi nữ Uniqlo với thiết kế tinh tế, chất liệu cotton cao cấp. Form dáng chuẩn, phù hợp cho công sở.', 349000, 'ao-so-mi-nu-uniqlo', 1, 3, 1, 178, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
 (7, 'Quần jean nữ H&M', 399000, 'Quần jean nữ H&M với thiết kế hiện đại, chất liệu denim mềm mại. Nhiều kiểu dáng và màu sắc.', 299000, 'quan-jean-nu-hm', 1, 4, 3, 267, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
 (8, 'Áo khoác nam Adidas', 1299000, 'Áo khoác nam Adidas với thiết kế thể thao, chất liệu cao cấp. Chống nước nhẹ, phù hợp cho mọi thời tiết.', 999000, 'ao-khoac-nam-adidas', 1, 1, 5, 89, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
 (9, 'Váy dạ hội nữ Gucci', 15999000, 'Váy dạ hội nữ Gucci thiết kế sang trọng, chất liệu cao cấp. Phù hợp cho các sự kiện quan trọng.', 13999000, 'vay-da-hoi-nu-gucci', 1, 5, 6, 23, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20),
-(10, 'Áo len nam Uniqlo', 499000, 'Áo len nam Uniqlo chất liệu len cao cấp, thiết kế đơn giản. Giữ ấm tốt, phù hợp cho mùa đông.', 399000, 'ao-len-nam-uniqlo', 1, 1, 1, 134, NULL, '2025-10-05 15:55:09', '2025-10-05 15:55:09', 500, 20, 20, 20);
+(10, 'Áo len nam Uniqlo', 499000, 'Áo len nam Uniqlo chất liệu len cao cấp, thiết kế đơn giản. Giữ ấm tốt, phù hợp cho mùa đông.', 399000, 'ao-len-nam-uniqlo', 1, 1, 1, 135, NULL, '2025-10-05 15:55:09', '2025-12-28 18:33:01', 500, 20, 20, 20),
+(11, 'Áo polo nam Uniqlo', 349000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 299000, 'ao-polo-nam-uniqlo', 1, 1, 1, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 300, 70, 50, 5),
+(12, 'Áo thun cổ tròn nam Nike', 449000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 399000, 'ao-thun-co-tron-nam-nike', 1, 1, 4, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 250, 65, 48, 3),
+(13, 'Áo khoác gió nam Adidas', 1299000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 1099000, 'ao-khoac-gio-nam-adidas', 1, 1, 5, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 500, 75, 60, 8),
+(14, 'Áo len nam Zara', 799000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 699000, 'ao-len-nam-zara', 1, 1, 2, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 400, 72, 55, 6),
+(15, 'Áo hoodie nam H&M', 599000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 499000, 'ao-hoodie-nam-hm', 1, 1, 3, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 450, 73, 56, 7),
+(16, 'Áo cardigan nam Uniqlo', 899000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 799000, 'ao-cardigan-nam-uniqlo', 1, 1, 1, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 350, 74, 54, 5),
+(17, 'Áo blazer nam Zara', 1999000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 1799000, 'ao-blazer-nam-zara', 1, 1, 2, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 600, 78, 58, 10),
+(18, 'Áo vest nam H&M', 1499000, 'Chất liệu cotton cao cấp, mềm mại, thấm hút mồ hôi tốt. Thiết kế hiện đại, form dáng chuẩn, phù hợp cho mọi hoạt động.', 1299000, 'ao-vest-nam-hm', 1, 1, 3, 0, '2025-12-28 16:04:20', '2025-12-28 15:52:56', '2025-12-28 16:04:20', 550, 76, 57, 9);
 
 -- --------------------------------------------------------
 
@@ -676,6 +775,14 @@ CREATE TABLE `product_reviews` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `product_reviews`
+--
+
+INSERT INTO `product_reviews` (`id`, `user_id`, `product_slug`, `rating`, `content`, `parent_id`, `is_admin_reply`, `is_approved`, `is_hidden`, `created_at`, `updated_at`) VALUES
+(1, 14, 'ao-so-mi-nam-uniqlo', 4, 'sản phẩm rất chất lượng', NULL, 0, 1, 0, '2025-11-27 15:32:58', '2025-11-27 15:32:58'),
+(2, 13, 'ao-so-mi-nam-uniqlo', NULL, 'dạ shop cảm ơn ạ', 1, 1, 1, 0, '2025-11-27 15:34:04', '2025-11-27 15:34:04');
+
 -- --------------------------------------------------------
 
 --
@@ -689,6 +796,13 @@ CREATE TABLE `review_images` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `review_images`
+--
+
+INSERT INTO `review_images` (`id`, `review_id`, `image_path`, `created_at`, `updated_at`) VALUES
+(1, 1, 'review_images/Nz3bvATWeFkHrtvG4KELng4lisiBgHyctHseyU3H.jpg', '2025-11-27 15:33:00', '2025-11-27 15:33:00');
 
 -- --------------------------------------------------------
 
@@ -725,7 +839,7 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES
 (1, 'storeName', 'TruongShop', '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
-(2, 'address', 'Khái Đông 4, hòa quý, ngũ hành sơn, đà nẵng', '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
+(2, 'address', '89 Nguyễn Hoàng, Phường 1, Thị xã Quảng Trị, Quảng Trị', '2025-10-19 13:37:48', '2025-11-27 13:57:45'),
 (3, 'phone', '0354422737', '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
 (4, 'email', 'phuctruong03qt@gmail.com', '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
 (5, 'logo', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAACWCAIAAAB4uAJLAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAEwmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSfvu78nIGlkPSdXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQnPz4KPHg6eG1wbWV0YSB4bWxuczp4PSdhZG9iZTpuczptZXRhLyc+CjxyZGY6UkRGIHhtbG5zOnJkZj0naHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyc+CgogPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9JycKICB4bWxuczpBdHRyaWI9J2h0dHA6Ly9ucy5hdHRyaWJ1dGlvbi5jb20vYWRzLzEuMC8nPgogIDxBdHRyaWI6QWRzPgogICA8cmRmOlNlcT4KICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0nUmVzb3VyY2UnPgogICAgIDxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA4LTA0PC9BdHRyaWI6Q3JlYXRlZD4KICAgICA8QXR0cmliOkV4dElkPjNlNzhkOWZiLWM5NmEtNDBlOS1hNDNhLTU5ZWJkODk2Mzg1MTwvQXR0cmliOkV4dElkPgogICAgIDxBdHRyaWI6RmJJZD41MjUyNjU5MTQxNzk1ODA8L0F0dHJpYjpGYklkPgogICAgIDxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+CiAgICA8L3JkZjpsaT4KICAgPC9yZGY6U2VxPgogIDwvQXR0cmliOkFkcz4KIDwvcmRmOkRlc2NyaXB0aW9uPgoKIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PScnCiAgeG1sbnM6ZGM9J2h0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvJz4KICA8ZGM6dGl0bGU+CiAgIDxyZGY6QWx0PgogICAgPHJkZjpsaSB4bWw6bGFuZz0neC1kZWZhdWx0Jz5sb2dvIGNodeG6qW4gZGV2IGdhbmcgc3RvcmUgLSAzPC9yZGY6bGk+CiAgIDwvcmRmOkFsdD4KICA8L2RjOnRpdGxlPgogPC9yZGY6RGVzY3JpcHRpb24+CgogPHJk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', '2025-10-19 13:37:48', '2025-10-19 13:37:48');
@@ -739,12 +853,12 @@ INSERT INTO `settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES
 (11, 'momoSecretKey', NULL, '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
 (12, 'momoUrl', NULL, '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
 (13, 'enableVnpay', '1', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
-(14, 'vnpayTmnCode', 'MPUC5KLU', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
-(15, 'vnpayHashSecret', '2QA5T1BAYTGJ9EWNVI0US35ZDT0PXJWV', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
+(14, 'vnpayTmnCode', 'PDYGBW25', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
+(15, 'vnpayHashSecret', '9JZMJKHIIGMK6K9NDH0E9N3W540ZZK9M', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
 (16, 'vnpayUrl', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html', '2025-10-19 13:37:48', '2025-10-26 13:04:15'),
 (17, 'GHN_BASE_URL', NULL, '2025-10-19 13:37:48', '2025-10-19 13:37:48'),
 (18, 'GHN_API_TOKEN', '5936d70f-b273-11f0-9be4-ea98c4bd6ea3', '2025-10-19 13:37:48', '2025-10-26 13:58:48'),
-(19, 'GHN_SHOP_ID', '6082991', '2025-10-19 13:37:48', '2025-10-26 13:58:48'),
+(19, 'GHN_SHOP_ID', '6082991', '2025-10-19 13:37:48', '2025-11-27 13:59:46'),
 (20, 'smtpHost', 'smtp.gmail.com', '2025-10-19 13:37:48', '2025-10-26 14:23:12'),
 (21, 'smtpPort', '587', '2025-10-19 13:37:48', '2025-10-26 14:23:12'),
 (22, 'smtpUser', 'truongnp.21it@vku.udn.vn', '2025-10-19 13:37:48', '2025-10-26 14:23:12'),
@@ -787,7 +901,29 @@ INSERT INTO `stock_movements` (`id`, `type`, `reference`, `user_id`, `note`, `cr
 (13, 'import', NULL, 13, NULL, '2025-10-28 06:14:19', '2025-10-28 06:14:19', NULL),
 (14, 'import', NULL, 13, NULL, '2025-10-28 06:14:55', '2025-10-28 06:14:55', NULL),
 (15, 'import', NULL, 13, NULL, '2025-10-28 06:15:18', '2025-10-28 06:15:18', NULL),
-(16, 'import', NULL, 13, NULL, '2025-10-28 06:15:59', '2025-10-28 06:15:59', NULL);
+(16, 'import', NULL, 13, NULL, '2025-10-28 06:15:59', '2025-10-28 06:15:59', NULL),
+(17, 'export', NULL, 14, 'Xuất kho khi đặt hàng #1', '2025-11-27 15:07:56', '2025-11-27 15:07:56', NULL),
+(18, 'export', NULL, 14, 'Xuất kho khi đặt hàng #2', '2025-11-28 03:06:51', '2025-11-28 03:06:51', NULL),
+(19, 'import', NULL, 13, 'AT-NIKE-BLK-L', '2025-12-28 15:22:10', '2025-12-28 15:22:10', NULL),
+(20, 'import', NULL, 13, 'AT-NIKE-BLK-L', '2025-12-28 15:22:56', '2025-12-28 15:22:56', NULL),
+(21, 'import', NULL, 13, 'AT-NIKE-BLK-L', '2025-12-28 15:24:03', '2025-12-28 15:24:03', NULL),
+(22, 'import', NULL, 13, 'AT-NIKE-BLK-L', '2025-12-28 15:25:03', '2025-12-28 15:25:03', NULL),
+(23, 'import', NULL, 13, 'AT-NIKE-BLK-L', '2025-12-28 15:25:56', '2025-12-28 15:25:56', NULL),
+(24, 'import', NULL, 13, 'ASM-UNI-WHT-L', '2025-12-28 15:27:22', '2025-12-28 15:27:22', NULL),
+(25, 'import', NULL, 13, 'ASM-UNI-WHT-M', '2025-12-28 15:28:19', '2025-12-28 15:28:19', NULL),
+(26, 'import', NULL, 13, 'ASM-UNI-WHT-XL', '2025-12-28 15:29:03', '2025-12-28 15:29:03', NULL),
+(27, 'import', NULL, 13, 'QUNJ-731946', '2025-12-28 16:28:00', '2025-12-28 16:28:00', NULL),
+(28, 'import', NULL, 13, 'QUNJ-731946', '2025-12-28 16:28:29', '2025-12-28 16:28:29', NULL),
+(29, 'import', NULL, 13, 'OKHO-878100', '2025-12-28 16:29:29', '2025-12-28 16:29:29', NULL),
+(30, 'import', NULL, 13, 'VYDH-684548', '2025-12-28 16:31:28', '2025-12-28 16:31:28', NULL),
+(31, 'import', NULL, 13, 'OLEN-841274', '2025-12-28 16:32:35', '2025-12-28 16:32:35', NULL),
+(32, 'import', NULL, 13, 'OSMI-010081', '2025-12-28 16:33:57', '2025-12-28 16:33:57', NULL),
+(33, 'import', NULL, 13, 'ASM-UNI-NAV-L', '2025-12-28 16:35:17', '2025-12-28 16:35:17', NULL),
+(34, 'import', NULL, 13, 'ASM-UNI-NAV-L', '2025-12-28 16:36:42', '2025-12-28 16:36:42', NULL),
+(35, 'import', NULL, 13, 'AT-NIKE-BLU-M', '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL),
+(36, 'export', NULL, 13, 'Xuất kho khi đặt hàng #3', '2025-12-28 18:33:01', '2025-12-28 18:33:01', NULL),
+(37, 'export', NULL, 14, 'Xuất kho khi đặt hàng #4', '2025-12-29 16:10:38', '2025-12-29 16:10:38', NULL),
+(38, 'export', NULL, 14, 'Xuất kho khi đặt hàng #5', '2025-12-29 16:16:56', '2025-12-29 16:16:56', NULL);
 
 -- --------------------------------------------------------
 
@@ -811,8 +947,6 @@ CREATE TABLE `stock_movement_items` (
 --
 
 INSERT INTO `stock_movement_items` (`id`, `stock_movement_id`, `quantity`, `created_at`, `updated_at`, `deleted_at`, `variant_id`, `unit_price`) VALUES
-(1, 3, 10, '2025-10-26 14:53:51', '2025-10-26 14:53:51', NULL, 3, 100000),
-(2, 3, 10, '2025-10-26 14:53:51', '2025-10-26 14:53:51', NULL, 4, 80000),
 (3, 4, 30, '2025-10-26 14:55:02', '2025-10-26 14:55:02', NULL, 36, 80000),
 (4, 4, 15, '2025-10-26 14:55:02', '2025-10-26 14:55:02', NULL, 37, 700000),
 (5, 4, 18, '2025-10-26 14:55:02', '2025-10-26 14:55:02', NULL, 40, 100000),
@@ -828,7 +962,30 @@ INSERT INTO `stock_movement_items` (`id`, `stock_movement_id`, `quantity`, `crea
 (15, 14, 40, '2025-10-28 06:14:55', '2025-10-28 06:14:55', NULL, 29, 100000),
 (16, 14, 40, '2025-10-28 06:14:55', '2025-10-28 06:14:55', NULL, 28, 100000),
 (17, 15, 40, '2025-10-28 06:15:18', '2025-10-28 06:15:18', NULL, 26, 100000),
-(18, 16, 40, '2025-10-28 06:15:59', '2025-10-28 06:15:59', NULL, 10, 100000);
+(20, 18, 1, '2025-11-28 03:06:51', '2025-11-28 03:06:51', NULL, 36, 599000),
+(31, 27, 130, '2025-12-28 16:28:00', '2025-12-28 16:28:00', NULL, 60, 120000),
+(32, 28, 180, '2025-12-28 16:28:29', '2025-12-28 16:28:29', NULL, 59, 130000),
+(33, 29, 150, '2025-12-28 16:29:29', '2025-12-28 16:29:29', NULL, 57, 200000),
+(34, 29, 140, '2025-12-28 16:29:29', '2025-12-28 16:29:29', NULL, 58, 180000),
+(35, 30, 180, '2025-12-28 16:31:28', '2025-12-28 16:31:28', NULL, 55, 300000),
+(36, 30, 200, '2025-12-28 16:31:28', '2025-12-28 16:31:28', NULL, 56, 320000),
+(37, 31, 140, '2025-12-28 16:32:35', '2025-12-28 16:32:35', NULL, 53, 230000),
+(38, 31, 190, '2025-12-28 16:32:35', '2025-12-28 16:32:35', NULL, 54, 220000),
+(39, 32, 170, '2025-12-28 16:33:57', '2025-12-28 16:33:57', NULL, 51, 130000),
+(40, 32, 300, '2025-12-28 16:33:57', '2025-12-28 16:33:57', NULL, 52, 130000),
+(41, 33, 150, '2025-12-28 16:35:17', '2025-12-28 16:35:17', NULL, 50, 120000),
+(42, 34, 150, '2025-12-28 16:36:42', '2025-12-28 16:36:42', NULL, 49, 120000),
+(43, 34, 140, '2025-12-28 16:36:42', '2025-12-28 16:36:42', NULL, 48, 120000),
+(44, 34, 140, '2025-12-28 16:36:42', '2025-12-28 16:36:42', NULL, 47, 120000),
+(45, 34, 150, '2025-12-28 16:36:42', '2025-12-28 16:36:42', NULL, 46, 120000),
+(46, 35, 140, '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL, 41, 130000),
+(47, 35, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL, 42, 130000),
+(48, 35, 160, '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL, 43, 130000),
+(49, 35, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL, 44, 120000),
+(50, 35, 120, '2025-12-28 16:38:21', '2025-12-28 16:38:21', NULL, 45, 120000),
+(51, 36, 1, '2025-12-28 18:33:01', '2025-12-28 18:33:01', NULL, 54, 499000),
+(52, 37, 1, '2025-12-29 16:10:38', '2025-12-29 16:10:38', NULL, 48, 299000),
+(53, 38, 1, '2025-12-29 16:16:56', '2025-12-29 16:16:56', NULL, 36, 599000);
 
 -- --------------------------------------------------------
 
@@ -864,11 +1021,13 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `email`, `phone`, `avatar`, `gender`, `dateOfBirth`, `password`, `role`, `oauth_provider`, `oauth_id`, `otp`, `otp_expires_at`, `status`, `ip_user`, `note`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (13, 'admin', 'truongnp.21it@vku.udn.vn', '0123456789', 'avatars/admin.jpg', 'male', '1990-01-01', '$2y$12$E2zI7EN0LMvjCMzbsuarcufCJHPY9/IBCu51HXXLvki61RJPhnkGq', 'admin', NULL, NULL, NULL, NULL, 1, '127.0.0.1', 'Quản trị viên hệ thống', '2025-10-05 15:58:12', '2025-10-05 16:23:22', NULL),
-(14, 'nguyenvana', 'phuctruong03qt@gmail.com', '0987654321', '/storage/avatars/SlvW8R4G5VMHb6vLl1Mels6PbvqdoSoeAMz9tkJp.jpg', 'male', '1995-05-15', '$2y$12$DQjFQZb3BKfd9xDbvOV95.WO6kzu5wh4xfL1HdkupXvSCe8fTA3TW', 'user', NULL, NULL, NULL, NULL, 1, '127.0.0.1', NULL, '2025-10-05 15:58:12', '2025-10-05 16:19:29', NULL),
+(14, 'nguyenvana', 'phuctruong03qt@gmail.com', '0987654321', '/storage/avatars/wyU6RttrVMcXJrtBXXgmWnuUcqtJAAlqVAcSeO79.png', 'male', '1995-05-15', '$2y$12$DQjFQZb3BKfd9xDbvOV95.WO6kzu5wh4xfL1HdkupXvSCe8fTA3TW', 'user', 'google', '115052044730571573619', NULL, NULL, 1, '127.0.0.1', NULL, '2025-10-05 15:58:12', '2025-11-27 16:20:05', NULL),
 (15, 'tranthib', 'tranthib@gmail.com', '0912345678', 'avatars/user2.jpg', 'female', '1998-08-20', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NULL, NULL, NULL, NULL, 1, '192.168.1.3', NULL, '2025-10-05 15:58:12', '2025-10-05 15:58:12', NULL),
 (16, 'levanc', 'levanc@gmail.com', '0923456789', 'avatars/user3.jpg', 'male', '1992-12-10', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NULL, NULL, NULL, NULL, 1, '192.168.1.4', NULL, '2025-10-05 15:58:12', '2025-10-05 15:58:12', NULL),
 (17, 'phamthid', 'phamthid@gmail.com', '0934567890', 'avatars/user4.jpg', 'female', '1996-03-25', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NULL, NULL, NULL, NULL, 1, '192.168.1.5', NULL, '2025-10-05 15:58:12', '2025-10-05 15:58:12', NULL),
-(18, 'admin', 'admin@devgang.com', '0123456789', NULL, 'male', NULL, '$2y$12$8BDAUHo7lAyYNhc.hzK5.OJkau1gsuwQWMGvtkHp0zkCxJa6ooJHS', 'admin', NULL, NULL, NULL, NULL, 1, NULL, NULL, '2025-10-26 14:41:46', '2025-10-26 14:41:46', NULL);
+(18, 'admin', 'admin@devgang.com', '0123456789', NULL, 'male', NULL, '$2y$12$8BDAUHo7lAyYNhc.hzK5.OJkau1gsuwQWMGvtkHp0zkCxJa6ooJHS', 'admin', NULL, NULL, NULL, NULL, 1, NULL, NULL, '2025-10-26 14:41:46', '2025-10-26 14:41:46', NULL),
+(21, 'truong', 'annp.24it@vku.udn.vn', NULL, NULL, NULL, NULL, '$2y$12$JYgrysI.sW2kU0zH2OTlYu2O6sJpO4vds1bAc3QQfzmb03bgi2qwS', 'user', NULL, NULL, '579075', '2025-12-29 13:44:37', 0, '127.0.0.1', NULL, '2025-12-29 13:08:51', '2025-12-29 13:34:37', NULL),
+(23, 'truong', 'nguyenkyvy112az@gmail.com', NULL, NULL, NULL, NULL, '$2y$12$PCDoQcuUKa.iOeC8l7/.y.oGQc3tpRibs.VbaXCWG2v6BCUkqcWTK', 'user', NULL, NULL, '510255', '2025-12-29 14:09:22', 1, '127.0.0.1', NULL, '2025-12-29 13:46:22', '2025-12-29 13:59:22', NULL);
 
 -- --------------------------------------------------------
 
@@ -893,16 +1052,6 @@ CREATE TABLE `variants` (
 --
 
 INSERT INTO `variants` (`id`, `color`, `size`, `price`, `sku`, `quantity`, `product_id`, `created_at`, `updated_at`) VALUES
-(1, 'Trắng', 'M', 299000, 'ASM-UNI-WHT-M', 0, 1, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(2, 'Trắng', 'L', 299000, 'ASM-UNI-WHT-L', 0, 1, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(3, 'Trắng', 'XL', 299000, 'ASM-UNI-WHT-XL', 0, 1, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(4, 'Xanh navy', 'M', 299000, 'ASM-UNI-NAV-M', 0, 1, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(5, 'Xanh navy', 'L', 299000, 'ASM-UNI-NAV-L', 0, 1, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(6, 'Trắng', 'M', 399000, 'AT-NIKE-WHT-M', 0, 2, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(7, 'Trắng', 'L', 399000, 'AT-NIKE-WHT-L', 0, 2, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(8, 'Đen', 'M', 399000, 'AT-NIKE-BLK-M', 0, 2, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(9, 'Đen', 'L', 399000, 'AT-NIKE-BLK-L', 0, 2, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
-(10, 'Xanh', 'M', 399000, 'AT-NIKE-BLU-M', 0, 2, '2025-10-05 15:55:09', '2025-10-05 15:55:09'),
 (26, 'Đen', 'S', 899000, 'VL-ZARA-BLK-S', 0, 5, '2025-10-19 12:43:11', '2025-10-19 12:43:11'),
 (27, 'Đen', 'M', 899000, 'VL-ZARA-BLK-M', 0, 5, '2025-10-19 12:43:11', '2025-10-19 12:43:11'),
 (28, 'Xanh navy', 'S', 899000, 'VL-ZARA-NAV-S', 0, 5, '2025-10-19 12:43:11', '2025-10-19 12:43:11'),
@@ -917,7 +1066,27 @@ INSERT INTO `variants` (`id`, `color`, `size`, `price`, `sku`, `quantity`, `prod
 (37, 'Xanh đậm', '32', 599000, 'QJ-ZARA-BLU-32', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49'),
 (38, 'Xanh đậm', '34', 599000, 'QJ-ZARA-BLU-34', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49'),
 (39, 'Đen', '30', 599000, 'QJ-ZARA-BLK-30', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49'),
-(40, 'Đen', '32', 599000, 'QJ-ZARA-BLK-32', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49');
+(40, 'Đen', '32', 599000, 'QJ-ZARA-BLK-32', 0, 3, '2025-10-19 13:02:49', '2025-10-19 13:02:49'),
+(41, 'Trắng', 'M', 399000, 'AT-NIKE-WHT-M', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29'),
+(42, 'Trắng', 'L', 399000, 'AT-NIKE-WHT-L', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29'),
+(43, 'Đen', 'M', 399000, 'AT-NIKE-BLK-M', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29'),
+(44, 'Đen', 'L', 399000, 'AT-NIKE-BLK-L', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29'),
+(45, 'Xanh', 'M', 399000, 'AT-NIKE-BLU-M', 0, 2, '2025-12-28 16:02:29', '2025-12-28 16:02:29'),
+(46, 'Trắng', 'M', 299000, 'ASM-UNI-WHT-M', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59'),
+(47, 'Trắng', 'L', 299000, 'ASM-UNI-WHT-L', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59'),
+(48, 'Trắng', 'XL', 299000, 'ASM-UNI-WHT-XL', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59'),
+(49, 'Xanh navy', 'M', 299000, 'ASM-UNI-NAV-M', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59'),
+(50, 'Xanh navy', 'L', 299000, 'ASM-UNI-NAV-L', 0, 1, '2025-12-28 16:07:59', '2025-12-28 16:07:59'),
+(51, 'Màu Hồng', 'M', 399000, 'OSMI-151034', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41'),
+(52, 'Áo sơ kẻ dài tay nữ uniqlo', 'S', 399000, 'OSMI-010081', 0, 6, '2025-12-28 16:16:41', '2025-12-28 16:16:41'),
+(53, 'Xanh cây đậm', 'XL', 499000, 'OLEN-399537', 0, 10, '2025-12-28 16:19:05', '2025-12-28 16:19:05'),
+(54, 'Be', 'XL', 499000, 'OLEN-841274', 0, 10, '2025-12-28 16:19:05', '2025-12-28 16:19:05'),
+(55, 'Đỏ', 'L', 15999000, 'VYDH-621882', 0, 9, '2025-12-28 16:20:44', '2025-12-28 16:20:44'),
+(56, 'Tím', 'L', 15999000, 'VYDH-684548', 0, 9, '2025-12-28 16:20:44', '2025-12-28 16:20:44'),
+(57, 'Đen', 'XL', 1299000, 'OKHO-679493', 0, 8, '2025-12-28 16:21:48', '2025-12-28 16:21:48'),
+(58, 'Đen xám', 'XXl', 1299000, 'OKHO-878100', 0, 8, '2025-12-28 16:21:49', '2025-12-28 16:21:49'),
+(59, 'Xanh đậm', 'L', 399000, 'QUNJ-092604', 0, 7, '2025-12-28 16:23:18', '2025-12-28 16:23:18'),
+(60, 'Xanh nhạt', 'L', 399000, 'QUNJ-731946', 0, 7, '2025-12-28 16:23:18', '2025-12-28 16:23:18');
 
 --
 -- Indexes for dumped tables
@@ -1195,7 +1364,7 @@ ALTER TABLE `variants`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -1219,7 +1388,7 @@ ALTER TABLE `brands`
 -- AUTO_INCREMENT for table `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -1273,13 +1442,13 @@ ALTER TABLE `flash_sale_products`
 -- AUTO_INCREMENT for table `images`
 --
 ALTER TABLE `images`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `inventories`
 --
 ALTER TABLE `inventories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `jobs`
@@ -1291,7 +1460,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `messengers`
 --
 ALTER TABLE `messengers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -1303,13 +1472,13 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `orders_details`
 --
 ALTER TABLE `orders_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pages`
@@ -1327,19 +1496,19 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `product_reviews`
 --
 ALTER TABLE `product_reviews`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `review_images`
 --
 ALTER TABLE `review_images`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -1351,25 +1520,25 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `stock_movements`
 --
 ALTER TABLE `stock_movements`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `stock_movement_items`
 --
 ALTER TABLE `stock_movement_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `variants`
 --
 ALTER TABLE `variants`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- Constraints for dumped tables
