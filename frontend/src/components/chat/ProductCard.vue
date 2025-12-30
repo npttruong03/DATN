@@ -116,18 +116,31 @@ props.products.forEach(product => {
     variantId: null
   }
 
-  if (product.variants?.length) {
+  // Xử lý trường hợp product không có variants
+  if (!product.variants || product.variants.length === 0) {
+    // Nếu không có variants, dùng product.id làm variantId
+    selectedVariants[product.id].variantId = product.id
+  } else {
+    // Tìm variant phù hợp với size và color mặc định
     const defaultVariant = product.variants.find(v =>
       v.size === defaultSize && v.color === defaultColor
     )
     if (defaultVariant) {
       selectedVariants[product.id].variantId = defaultVariant.id
     } else {
+      // Nếu không tìm thấy variant phù hợp, lấy variant đầu tiên có tồn kho
       const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
       if (firstAvailableVariant) {
         selectedVariants[product.id].variantId = firstAvailableVariant.id
         selectedVariants[product.id].size = firstAvailableVariant.size
         selectedVariants[product.id].color = firstAvailableVariant.color
+      } else {
+        // Nếu không có variant nào có tồn kho, lấy variant đầu tiên
+        if (product.variants[0]) {
+          selectedVariants[product.id].variantId = product.variants[0].id
+          selectedVariants[product.id].size = product.variants[0].size
+          selectedVariants[product.id].color = product.variants[0].color
+        }
       }
     }
   }
@@ -135,7 +148,7 @@ props.products.forEach(product => {
 
 function onVariantChange(product) {
   const selected = selectedVariants[product.id]
-  if (!product.variants?.length) {
+  if (!product.variants || product.variants.length === 0) {
     selected.variantId = product.id
     selected.quantity = 1
     return
@@ -149,7 +162,22 @@ function onVariantChange(product) {
     selected.variantId = variant.id
     selected.quantity = 1
   } else {
-    selected.variantId = null
+    // Nếu không tìm thấy variant phù hợp, thử tìm variant đầu tiên có tồn kho
+    const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
+    if (firstAvailableVariant) {
+      selected.variantId = firstAvailableVariant.id
+      selected.size = firstAvailableVariant.size
+      selected.color = firstAvailableVariant.color
+      selected.quantity = 1
+    } else if (product.variants[0]) {
+      // Fallback: lấy variant đầu tiên
+      selected.variantId = product.variants[0].id
+      selected.size = product.variants[0].size
+      selected.color = product.variants[0].color
+      selected.quantity = 1
+    } else {
+      selected.variantId = null
+    }
   }
 }
 
@@ -214,36 +242,57 @@ function canAddToCart(product) {
 async function addToCartHandler(product) {
   const selected = selectedVariants[product.id]
 
+  // Nếu chưa có variantId, thử tìm lại
+  if (!selected.variantId) {
+    onVariantChange(product)
+    // Nếu vẫn không có variantId sau khi tìm lại
+    if (!selectedVariants[product.id].variantId) {
+      // Nếu product không có variants, set variantId = product.id
+      if (!product.variants || product.variants.length === 0) {
+        selectedVariants[product.id].variantId = product.id
+      } else {
+        alert('Vui lòng chọn size và màu sắc')
+        return
+      }
+    }
+  }
+
+  // Kiểm tra lại sau khi đã set variantId
   if (!canAddToCart(product)) {
     const stockQuantity = getStockQuantity(product)
 
     if (selected.quantity <= 0) {
       alert('Vui lòng chọn số lượng sản phẩm')
     } else if (stockQuantity <= 0) {
-      alert('Sản phẩm này đã hết hàng')
+      // Cho phép thêm vào giỏ hàng ngay cả khi hết hàng
+      const confirmAdd = confirm('Sản phẩm này đã hết hàng. Bạn có muốn thêm vào giỏ hàng để đặt trước không?')
+      if (!confirmAdd) {
+        return
+      }
     } else if (selected.quantity > stockQuantity) {
-      alert(`Chỉ còn ${stockQuantity} sản phẩm trong kho.`)
+      alert(`Chỉ còn ${stockQuantity} sản phẩm trong kho. Đã tự động điều chỉnh số lượng.`)
       selected.quantity = stockQuantity
     } else {
       alert('Vui lòng chọn size và màu sắc')
+      return
     }
-
-    return
   }
 
   isAddingToCart[product.id] = true
 
   try {
     let variant = null
-    let variantId = selected.variantId
+    let variantId = selectedVariants[product.id].variantId
     let price = product.discount_price || product.price || 0
 
     if (variantId === product.id) {
-      if (product.variants?.length) {
+      if (product.variants && product.variants.length > 0) {
+        // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
         variant = product.variants[0]
         variantId = variant.id
         price = variant.price || price
       } else {
+        // Thực sự không có variants, tạo variant object tạm
         variant = {
           id: product.id,
           size: selected.size || 'Mặc định',
@@ -255,9 +304,17 @@ async function addToCartHandler(product) {
       variant = product.variants?.find(v => v.id === selected.variantId)
       if (variant) {
         price = variant.price || price
+      } else {
+        // Nếu không tìm thấy variant, thử lấy variant đầu tiên
+        if (product.variants && product.variants.length > 0) {
+          variant = product.variants[0]
+          variantId = variant.id
+          price = variant.price || price
+        }
       }
     }
 
+    console.log('Adding to cart:', { variantId, quantity: selected.quantity, price, product: product.name })
     const result = await addToCart(variantId, selected.quantity, price)
 
     if (result) {
@@ -274,7 +331,8 @@ async function addToCartHandler(product) {
     }
   } catch (error) {
     console.error('Add to cart error:', error)
-    alert(error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng')
+    const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
+    alert(errorMessage)
   } finally {
     isAddingToCart[product.id] = false
   }
