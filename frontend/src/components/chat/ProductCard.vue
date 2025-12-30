@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useCart } from '../../composable/useCart'
 
 const props = defineProps({
@@ -105,37 +105,60 @@ const selectedVariants = reactive({})
 const isAddingToCart = reactive({})
 
 // Khởi tạo variants mặc định
-props.products.forEach(product => {
-  const defaultSize = product.default_size || (product.available_sizes?.[0] || 'Mặc định')
-  const defaultColor = product.default_color || (product.available_colors?.[0] || 'Mặc định')
+const initializeVariants = () => {
+  props.products.forEach(product => {
+    const defaultSize = product.default_size || (product.available_sizes?.[0] || 'Mặc định')
+    const defaultColor = product.default_color || (product.available_colors?.[0] || 'Mặc định')
 
-  selectedVariants[product.id] = {
-    size: defaultSize,
-    color: defaultColor,
-    quantity: 1,
-    variantId: null
-  }
+    selectedVariants[product.id] = {
+      size: defaultSize,
+      color: defaultColor,
+      quantity: 1,
+      variantId: null
+    }
 
-  if (product.variants?.length) {
-    const defaultVariant = product.variants.find(v =>
-      v.size === defaultSize && v.color === defaultColor
-    )
-    if (defaultVariant) {
-      selectedVariants[product.id].variantId = defaultVariant.id
+    // Xử lý trường hợp product không có variants
+    if (!product.variants || product.variants.length === 0) {
+      // Nếu không có variants, dùng product.id làm variantId
+      selectedVariants[product.id].variantId = product.id
     } else {
-      const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
-      if (firstAvailableVariant) {
-        selectedVariants[product.id].variantId = firstAvailableVariant.id
-        selectedVariants[product.id].size = firstAvailableVariant.size
-        selectedVariants[product.id].color = firstAvailableVariant.color
+      // Tìm variant phù hợp với size và color mặc định
+      const defaultVariant = product.variants.find(v =>
+        v.size === defaultSize && v.color === defaultColor
+      )
+      if (defaultVariant) {
+        selectedVariants[product.id].variantId = defaultVariant.id
+      } else {
+        // Nếu không tìm thấy variant phù hợp, lấy variant đầu tiên có tồn kho
+        const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
+        if (firstAvailableVariant) {
+          selectedVariants[product.id].variantId = firstAvailableVariant.id
+          selectedVariants[product.id].size = firstAvailableVariant.size
+          selectedVariants[product.id].color = firstAvailableVariant.color
+        } else {
+          // Nếu không có variant nào có tồn kho, lấy variant đầu tiên
+          if (product.variants[0]) {
+            selectedVariants[product.id].variantId = product.variants[0].id
+            selectedVariants[product.id].size = product.variants[0].size
+            selectedVariants[product.id].color = product.variants[0].color
+          }
+        }
       }
     }
-  }
-})
+  })
+}
+
+// Khởi tạo lần đầu
+initializeVariants()
+
+// Theo dõi thay đổi props.products để khởi tạo lại khi products thay đổi
+watch(() => props.products, () => {
+  initializeVariants()
+}, { deep: true })
 
 function onVariantChange(product) {
   const selected = selectedVariants[product.id]
-  if (!product.variants?.length) {
+  if (!product.variants || product.variants.length === 0) {
     selected.variantId = product.id
     selected.quantity = 1
     return
@@ -238,26 +261,32 @@ async function addToCartHandler(product) {
     let variantId = selected.variantId
     let price = product.discount_price || product.price || 0
 
+    // Xử lý trường hợp variantId === product.id (không có variants)
     if (variantId === product.id) {
-      if (product.variants?.length) {
+      if (product.variants && product.variants.length > 0) {
+        // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
         variant = product.variants[0]
         variantId = variant.id
         price = variant.price || price
       } else {
+        // Thực sự không có variants, tạo variant object tạm
         variant = {
           id: product.id,
           size: selected.size || 'Mặc định',
           color: selected.color || 'Mặc định',
           price
         }
+        // Giữ nguyên variantId = product.id
       }
     } else {
+      // Tìm variant từ danh sách variants
       variant = product.variants?.find(v => v.id === selected.variantId)
       if (variant) {
         price = variant.price || price
       }
     }
 
+    console.log('Adding to cart:', { variantId, quantity: selected.quantity, price })
     const result = await addToCart(variantId, selected.quantity, price)
 
     if (result) {
@@ -274,7 +303,8 @@ async function addToCartHandler(product) {
     }
   } catch (error) {
     console.error('Add to cart error:', error)
-    alert(error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng')
+    const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
+    alert(errorMessage)
   } finally {
     isAddingToCart[product.id] = false
   }
