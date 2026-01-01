@@ -1,9 +1,7 @@
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '../utils/api'
 
 export function useContact() {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL // Dùng biến môi trường Vite
-
     const contacts = ref([])
     const contactDetail = ref(null)
     const loading = ref(false)
@@ -27,7 +25,7 @@ export function useContact() {
             if (params.per_page) queryParams.append('per_page', params.per_page)
             if (params.page) queryParams.append('page', params.page)
 
-            const res = await axios.get(`${apiBaseUrl}/api/contacts?${queryParams.toString()}`)
+            const res = await api.get(`/api/contacts?${queryParams.toString()}`)
             contacts.value = res.data.data
             pagination.value = {
                 current_page: res.data.current_page,
@@ -48,7 +46,7 @@ export function useContact() {
         loading.value = true
         error.value = null
         try {
-            const res = await axios.get(`${apiBaseUrl}/api/contacts/${id}`)
+            const res = await api.get(`/api/contacts/${id}`)
             contactDetail.value = res.data
             return res.data
         } catch (err) {
@@ -61,7 +59,7 @@ export function useContact() {
 
     const replyContact = async (id, admin_reply) => {
         try {
-            const res = await axios.post(`${apiBaseUrl}/api/contacts/${id}/reply`, { admin_reply })
+            const res = await api.post(`/api/contacts/${id}/reply`, { admin_reply })
             return res.data
         } catch (err) {
             error.value = err
@@ -71,7 +69,7 @@ export function useContact() {
 
     const deleteContact = async (id) => {
         try {
-            const res = await axios.delete(`${apiBaseUrl}/api/contacts/${id}`)
+            const res = await api.delete(`/api/contacts/${id}`)
             return res.data
         } catch (err) {
             error.value = err
@@ -81,7 +79,7 @@ export function useContact() {
 
     const getContactStats = async () => {
         try {
-            const res = await axios.get(`${apiBaseUrl}/api/contacts/stats`)
+            const res = await api.get(`/api/contacts/stats`)
             return res.data
         } catch (err) {
             error.value = err
@@ -90,12 +88,16 @@ export function useContact() {
     }
 
     const sendContact = async (form) => {
+        loading.value = true
+        error.value = null
         try {
-            const res = await axios.post(`${apiBaseUrl}/api/contacts`, form)
+            const res = await api.post(`/api/contacts`, form)
             return res.data
         } catch (err) {
-            error.value = err
+            error.value = err.response?.data || err
             throw err
+        } finally {
+            loading.value = false
         }
     }
 

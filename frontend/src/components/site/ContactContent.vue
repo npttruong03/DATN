@@ -142,12 +142,29 @@ const validateForm = () => {
 const handleSubmit = async () => {
     if (!validateForm()) return
     loading.value = true
+    errors.value = {}
     try {
         await sendContact(form.value)
-        push.success('Liên hệ của bạn được gửi thông. Chúng tôi sẽ phản hồi sớm nhất có thể!')
+        push.success('Liên hệ của bạn được gửi thành công. Chúng tôi sẽ phản hồi sớm nhất có thể!')
         form.value = { name: '', email: '', phone: '', message: '' }
+        errors.value = {}
     } catch (error) {
         console.error(error)
+        // Handle backend validation errors
+        if (error.response?.data?.errors) {
+            // Laravel returns errors as { field: ["error message"] }
+            const backendErrors = error.response.data.errors
+            errors.value = {
+                name: backendErrors.name?.[0] || '',
+                email: backendErrors.email?.[0] || '',
+                phone: backendErrors.phone?.[0] || '',
+                message: backendErrors.message?.[0] || ''
+            }
+        } else if (error.response?.data?.message) {
+            push.error(error.response.data.message)
+        } else {
+            push.error('Có lỗi xảy ra khi gửi liên hệ. Vui lòng thử lại!')
+        }
     } finally {
         loading.value = false
     }
