@@ -145,11 +145,16 @@ const initializeVariants = () => {
       }
     }
   }
-})
+  })
+}
+
+// Khởi tạo variants khi products thay đổi
+watch(() => props.products, () => {
+  initializeVariants()
+}, { immediate: true })
 
 function onVariantChange(product) {
   const selected = selectedVariants[product.id]
-  if (!product.variants || product.variants.length === 0) {
   if (!product.variants || product.variants.length === 0) {
     selected.variantId = product.id
     selected.quantity = 1
@@ -291,13 +296,10 @@ async function addToCartHandler(product) {
     if (variantId === product.id) {
       if (product.variants && product.variants.length > 0) {
         // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
-      if (product.variants && product.variants.length > 0) {
-        // Nếu có variants nhưng đang dùng product.id, lấy variant đầu tiên
         variant = product.variants[0]
         variantId = variant.id
         price = variant.price || price
       } else {
-        // Thực sự không có variants, tạo variant object tạm
         // Thực sự không có variants, tạo variant object tạm
         variant = {
           id: product.id,
@@ -339,8 +341,6 @@ async function addToCartHandler(product) {
     }
   } catch (error) {
     console.error('Add to cart error:', error)
-    const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
-    alert(errorMessage)
     const errorMessage = error.response?.data?.error || error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng'
     alert(errorMessage)
   } finally {

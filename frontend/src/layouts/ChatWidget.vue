@@ -299,7 +299,9 @@ const loadMessages = async () => {
 const setupWebSocketListeners = () => {
   // Listen for new messages
   on('new-message', (message) => {
-    if (currentAdmin.value && String(message.senderId) === String(currentAdmin.value.id)) {
+    // Normalize sender ID (support both senderId and sender_id)
+    const senderId = message.senderId || message.sender_id;
+    if (currentAdmin.value && String(senderId) === String(currentAdmin.value.id)) {
       // Check if message already exists
       const exists = messages.value.some(m => m.id === message.id)
       if (!exists) {

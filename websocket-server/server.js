@@ -22,30 +22,47 @@ const io = new Server(server, {
 const userSockets = new Map();
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
   // User joins with their user ID
   socket.on('join', (userId) => {
     if (userId) {
-      userSockets.set(userId.toString(), socket.id);
-      socket.userId = userId.toString();
-      console.log(`User ${userId} joined with socket ${socket.id}`);
+      const userIdStr = userId.toString();
+      
+      // Disconnect old socket if user already has a connection
+      const oldSocketId = userSockets.get(userIdStr);
+      if (oldSocketId && oldSocketId !== socket.id) {
+        const oldSocket = io.sockets.sockets.get(oldSocketId);
+        if (oldSocket) {
+          oldSocket.disconnect(true);
+        }
+      }
+      
+      userSockets.set(userIdStr, socket.id);
+      socket.userId = userIdStr;
+      // Emit joined event to confirm
+      socket.emit('joined');
     }
   });
 
   // Handle private message
   socket.on('private-message', (data) => {
     const { receiverId, message } = data;
+    
+    // Ensure sender ID is set - use message.sender_id if socket.userId is not set
+    const senderId = socket.userId || message.sender_id;
+    if (!senderId) {
+      return;
+    }
+    
     const receiverSocketId = userSockets.get(receiverId.toString());
     
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit('new-message', {
+      // Normalize message: ensure both senderId and sender_id exist
+      const normalizedMessage = {
         ...message,
-        senderId: socket.userId
-      });
-      console.log(`Message sent from ${socket.userId} to ${receiverId}`);
-    } else {
-      console.log(`User ${receiverId} is not connected`);
+        senderId: senderId.toString(),
+        sender_id: message.sender_id || senderId.toString()
+      };
+      io.to(receiverSocketId).emit('new-message', normalizedMessage);
     }
   });
 
@@ -65,8 +82,11 @@ io.on('connection', (socket) => {
   // Handle disconnect
   socket.on('disconnect', () => {
     if (socket.userId) {
-      userSockets.delete(socket.userId);
-      console.log(`User ${socket.userId} disconnected`);
+      // Only delete if this is still the active socket for this user
+      const currentSocketId = userSockets.get(socket.userId);
+      if (currentSocketId === socket.id) {
+        userSockets.delete(socket.userId);
+      }
     }
   });
 });
@@ -80,7 +100,16 @@ app.post('/emit', (req, res) => {
   if (userId) {
     const socketId = userSockets.get(userId.toString());
     if (socketId) {
-      io.to(socketId).emit(event, data);
+      // Normalize message data: ensure both sender_id and senderId exist for compatibility
+      let normalizedData = data;
+      if (event === 'new-message' && data) {
+        normalizedData = {
+          ...data,
+          senderId: data.senderId || data.sender_id,
+          sender_id: data.sender_id || data.senderId
+        };
+      }
+      io.to(socketId).emit(event, normalizedData);
       res.json({ success: true, message: 'Event emitted' });
     } else {
       res.json({ success: false, message: 'User not connected' });

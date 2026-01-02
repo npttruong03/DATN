@@ -338,11 +338,68 @@ const closeImageModal = () => {
 }
 
 // Setup WebSocket listeners for realtime messages
+let messageHandler = null;
 const setupWebSocketListeners = () => {
+    // Remove old listener if exists
+    if (messageHandler) {
+        off('new-message', messageHandler);
+    }
+    
     // Listen for new messages
-    on('new-message', (message) => {
-        // Check if message is for current conversation
-        if (selectedUser.value && String(message.senderId) === String(selectedUser.value.id)) {
+    messageHandler = (message) => {
+        // Always get fresh selectedUser value (not from closure)
+        // This ensures we get the current value, not the value when listener was created
+        const currentSelectedUser = selectedUser.value;
+        
+        // Normalize sender ID (support both senderId and sender_id)
+        const senderId = message.senderId || message.sender_id;
+        
+        // Update conversations list với tin nhắn mới qua WebSocket (không cần reload từ server)
+        const conversationIndex = conversations.value.findIndex(
+            c => c.user.id === senderId
+        )
+        
+        if (conversationIndex !== -1) {
+            // Update latest message
+            conversations.value[conversationIndex].latest_message = message
+            // Update unread count nếu không phải conversation đang mở
+            if (!currentSelectedUser || String(currentSelectedUser.id) !== String(senderId)) {
+                conversations.value[conversationIndex].unread_count = 
+                    (conversations.value[conversationIndex].unread_count || 0) + 1
+            }
+            // Move to top
+            const conversation = conversations.value.splice(conversationIndex, 1)[0]
+            conversations.value.unshift(conversation)
+        } else {
+            // Nếu chưa có conversation, load lại conversations để lấy conversation mới
+            loadConversations().then(() => {
+                // Sau khi load, tìm lại conversation và update
+                const newConversationIndex = conversations.value.findIndex(
+                    c => c.user.id === senderId
+                )
+                if (newConversationIndex !== -1) {
+                    conversations.value[newConversationIndex].latest_message = message
+                    if (!currentSelectedUser || String(currentSelectedUser.id) !== String(senderId)) {
+                        conversations.value[newConversationIndex].unread_count = 
+                            (conversations.value[newConversationIndex].unread_count || 0) + 1
+                    }
+                    // Move to top
+                    const conversation = conversations.value.splice(newConversationIndex, 1)[0]
+                    conversations.value.unshift(conversation)
+                }
+            }).catch(err => {
+                console.error('Error loading conversations:', err);
+            })
+        }
+        
+        // Check if message is for current conversation and add to messages
+        // Always read fresh value from ref, not from closure
+        const currentSelectedUserFresh = selectedUser.value;
+        const selectedUserId = currentSelectedUserFresh?.id;
+        const senderIdStr = String(senderId);
+        const selectedUserIdStr = selectedUserId ? String(selectedUserId) : null;
+        
+        if (currentSelectedUserFresh && senderIdStr === selectedUserIdStr) {
             // Check if message already exists
             const exists = messages.value.some(m => m.id === message.id)
             if (!exists) {
@@ -354,27 +411,9 @@ const setupWebSocketListeners = () => {
                 })
             }
         }
-        
-        // Update conversations list với tin nhắn mới qua WebSocket (không cần reload từ server)
-        const conversationIndex = conversations.value.findIndex(
-            c => c.user.id === message.senderId
-        )
-        if (conversationIndex !== -1) {
-            // Update latest message
-            conversations.value[conversationIndex].latest_message = message
-            // Update unread count nếu không phải conversation đang mở
-            if (!selectedUser.value || String(selectedUser.value.id) !== String(message.senderId)) {
-                conversations.value[conversationIndex].unread_count = 
-                    (conversations.value[conversationIndex].unread_count || 0) + 1
-            }
-            // Move to top
-            const conversation = conversations.value.splice(conversationIndex, 1)[0]
-            conversations.value.unshift(conversation)
-        } else {
-            // Nếu chưa có conversation, cần load lại conversations (trường hợp hiếm)
-            loadConversations()
-        }
-    })
+    };
+    
+    on('new-message', messageHandler);
 
     // Listen for message read notifications
     on('message-read', (data) => {
@@ -388,7 +427,10 @@ const setupWebSocketListeners = () => {
 }
 
 const removeWebSocketListeners = () => {
-    off('new-message')
+    if (messageHandler) {
+        off('new-message', messageHandler);
+        messageHandler = null;
+    }
     off('message-read')
 }
 
@@ -402,7 +444,7 @@ watch(selectedUser, (newUser) => {
     if (newUser) {
         loadMessages()
     }
-})
+}, { deep: true })
 
 watch(messages, (newMessages) => {
     nextTick(() => {
@@ -411,6 +453,17 @@ watch(messages, (newMessages) => {
         }
     })
 }, { deep: true })
+
+// Watch isConnected to setup listeners when connection is established
+watch(isConnected, (connected) => {
+    if (connected) {
+        // Setup listeners when WebSocket connects
+        setupWebSocketListeners()
+    } else {
+        // Remove listeners when disconnected
+        removeWebSocketListeners()
+    }
+}, { immediate: true })
 
 onMounted(async () => {
     // Check mobile on mount
@@ -425,12 +478,10 @@ onMounted(async () => {
     // Load conversations chỉ lần đầu
     await loadConversations()
 
-    // Setup WebSocket listeners after a short delay to ensure connection
-    setTimeout(() => {
-        if (isConnected.value) {
-            setupWebSocketListeners()
-        }
-    }, 1000)
+    // Setup WebSocket listeners if already connected
+    if (isConnected.value) {
+        setupWebSocketListeners()
+    }
 })
 
 onUnmounted(() => {

@@ -94,8 +94,12 @@ class MessengerController extends Controller
         // Emit WebSocket event to receiver
         try {
             $websocketService = new WebSocketService();
+            // Normalize message data: ensure both sender_id and senderId exist
+            $messageToEmit = array_merge($newMessage, [
+                'senderId' => $newMessage['sender_id'], // Add senderId for frontend compatibility
+            ]);
             // Send message data to receiver via WebSocket
-            $websocketService->emit('new-message', $newMessage, $request->receiver_id);
+            $websocketService->emit('new-message', $messageToEmit, $request->receiver_id);
         } catch (\Exception $e) {
             \Log::error('Failed to emit WebSocket message: ' . $e->getMessage());
         }

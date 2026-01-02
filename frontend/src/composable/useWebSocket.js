@@ -10,8 +10,11 @@ export function useWebSocket() {
   const isConnected = ref(false)
 
   const connect = () => {
-    if (socket.value?.connected) {
-      return
+    // Disconnect existing socket before creating new one
+    if (socket.value) {
+      socket.value.disconnect();
+      socket.value = null;
+      isConnected.value = false;
     }
 
     socket.value = io(websocketUrl, {
@@ -22,17 +25,18 @@ export function useWebSocket() {
     })
 
     socket.value.on('connect', () => {
-      console.log('WebSocket connected:', socket.value.id)
       isConnected.value = true
 
       // Join with user ID
       if (user.value?.id) {
         socket.value.emit('join', user.value.id)
+        socket.value.once('joined', () => {
+          // Socket joined successfully
+        })
       }
     })
 
     socket.value.on('disconnect', () => {
-      console.log('WebSocket disconnected')
       isConnected.value = false
     })
 
@@ -65,8 +69,6 @@ export function useWebSocket() {
   const emit = (event, data) => {
     if (socket.value?.connected) {
       socket.value.emit(event, data)
-    } else {
-      console.warn('WebSocket not connected, cannot emit:', event)
     }
   }
 
