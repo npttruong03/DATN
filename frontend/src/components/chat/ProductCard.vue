@@ -29,7 +29,7 @@
                 <option value="">Chọn size</option>
                 <option v-if="product.available_sizes && product.available_sizes.length > 0"
                   v-for="size in product.available_sizes" :key="size" :value="size">
-                  {{ size }}
+                  {{ size }} {{ getSizeStockLabel(product, size) }}
                 </option>
                 <option v-else value="Mặc định">Mặc định</option>
               </select>
@@ -40,13 +40,28 @@
               <label>Màu:</label>
               <select v-model="selectedVariants[product.id].color" @change="onVariantChange(product)">
                 <option value="">Chọn màu</option>
-                <option v-if="product.available_colors && product.available_colors.length > 0"
-                  v-for="color in product.available_colors" :key="color" :value="color">
-                  {{ color }}
-                </option>
+                <template v-if="selectedVariants[product.id].size && getAvailableColorsForSize(product, selectedVariants[product.id].size).length > 0">
+                  <option v-for="color in getAvailableColorsForSize(product, selectedVariants[product.id].size)" 
+                    :key="`size-${selectedVariants[product.id].size}-${color}`" 
+                    :value="color">
+                    {{ color }} {{ getColorStockLabelForSize(product, selectedVariants[product.id].size, color) }}
+                  </option>
+                </template>
+                <template v-else-if="product.available_colors && product.available_colors.length > 0">
+                  <option v-for="color in product.available_colors" 
+                    :key="`all-${color}`" 
+                    :value="color">
+                    {{ color }} {{ getColorStockLabel(product, color) }}
+                  </option>
+                </template>
                 <option v-else value="Mặc định">Mặc định</option>
               </select>
             </div>
+          </div>
+
+          <!-- Out of stock warning banner -->
+          <div v-if="getStockQuantity(product) <= 0" class="out-of-stock-banner">
+            ⚠️ Phiên bản này hiện đã hết hàng
           </div>
 
           <!-- Quantity selector -->
@@ -107,6 +122,15 @@ const isAddingToCart = reactive({})
 // Khởi tạo variants mặc định
 const initializeVariants = () => {
   props.products.forEach(product => {
+    console.log('🔧 Initializing variants for product:', {
+      id: product.id,
+      name: product.name,
+      available_sizes: product.available_sizes,
+      available_colors: product.available_colors,
+      variants_count: product.variants?.length || 0,
+      first_variant: product.variants?.[0]
+    })
+
     const defaultSize = product.default_size || (product.available_sizes?.[0] || 'Mặc định')
     const defaultColor = product.default_color || (product.available_colors?.[0] || 'Mặc định')
 
@@ -121,27 +145,47 @@ const initializeVariants = () => {
   if (!product.variants || product.variants.length === 0) {
     // Nếu không có variants, dùng product.id làm variantId
     selectedVariants[product.id].variantId = product.id
+    console.log('⚠️ No variants, using product.id:', product.id)
   } else {
     // Tìm variant phù hợp với size và color mặc định
-    const defaultVariant = product.variants.find(v =>
+    let defaultVariant = product.variants.find(v =>
       v.size === defaultSize && v.color === defaultColor
     )
+    
     if (defaultVariant) {
       selectedVariants[product.id].variantId = defaultVariant.id
+      console.log('✅ Found default variant:', {
+        variant_id: defaultVariant.id,
+        size: defaultVariant.size,
+        color: defaultVariant.color,
+        stock: defaultVariant.inventory?.quantity
+      })
     } else {
-      // Nếu không tìm thấy variant phù hợp, lấy variant đầu tiên có tồn kho
-      const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
-      if (firstAvailableVariant) {
-        selectedVariants[product.id].variantId = firstAvailableVariant.id
-        selectedVariants[product.id].size = firstAvailableVariant.size
-        selectedVariants[product.id].color = firstAvailableVariant.color
-      } else {
-        // Nếu không có variant nào có tồn kho, lấy variant đầu tiên
-        if (product.variants[0]) {
-          selectedVariants[product.id].variantId = product.variants[0].id
-          selectedVariants[product.id].size = product.variants[0].size
-          selectedVariants[product.id].color = product.variants[0].color
-        }
+      console.warn('⚠️ No exact match for default size+color, trying alternatives...')
+      
+      // Thử tìm variant có size phù hợp
+      defaultVariant = product.variants.find(v => v.size === defaultSize)
+      
+      // Hoặc tìm variant đầu tiên có tồn kho
+      if (!defaultVariant) {
+        defaultVariant = product.variants.find(v => v.inventory?.quantity > 0)
+      }
+      
+      // Hoặc lấy variant đầu tiên
+      if (!defaultVariant && product.variants[0]) {
+        defaultVariant = product.variants[0]
+      }
+      
+      if (defaultVariant) {
+        selectedVariants[product.id].variantId = defaultVariant.id
+        selectedVariants[product.id].size = defaultVariant.size
+        selectedVariants[product.id].color = defaultVariant.color
+        console.log('✅ Auto-selected variant:', {
+          variant_id: defaultVariant.id,
+          size: defaultVariant.size,
+          color: defaultVariant.color,
+          stock: defaultVariant.inventory?.quantity
+        })
       }
     }
   }
@@ -161,26 +205,97 @@ function onVariantChange(product) {
     return
   }
 
-  const variant = product.variants.find(v =>
-    v.size === selected.size && v.color === selected.color
-  )
+  console.log('🔍 onVariantChange called:', {
+    product: product.name,
+    selected_size: selected.size,
+    selected_color: selected.color,
+    available_variants: product.variants.length
+  })
 
+  // Tìm variant dựa trên size và color đã chọn
+  let variant = null
+  
+  // Trường hợp 1: Đã chọn cả size và color
+  if (selected.size && selected.color) {
+    variant = product.variants.find(v =>
+      v.size === selected.size && v.color === selected.color
+    )
+    
+    if (variant) {
+      console.log('✅ Found exact match:', {
+        variant_id: variant.id,
+        size: variant.size,
+        color: variant.color,
+        stock: variant.inventory?.quantity || 0
+      })
+    } else {
+      // 🔥 FIX: Màu không có sẵn cho size này, tự động chọn màu khác
+      console.warn('⚠️ Color not available for this size, auto-selecting...', {
+        size: selected.size,
+        color: selected.color
+      })
+      
+      const variantsWithSize = product.variants.filter(v => v.size === selected.size)
+      if (variantsWithSize.length > 0) {
+        // Ưu tiên variant còn hàng
+        variant = variantsWithSize.find(v => v.inventory?.quantity > 0) || variantsWithSize[0]
+        // Tự động set màu phù hợp với size
+        selected.color = variant.color
+        console.log('✅ Auto-corrected color to:', variant.color)
+      } else {
+        console.error('❌ No variants found for size:', selected.size)
+      }
+    }
+  }
+  
+  // Trường hợp 2: Chỉ chọn size
+  else if (selected.size && !selected.color) {
+    const variantsWithSize = product.variants.filter(v => v.size === selected.size)
+    if (variantsWithSize.length > 0) {
+      // Ưu tiên variant còn hàng
+      variant = variantsWithSize.find(v => v.inventory?.quantity > 0) || variantsWithSize[0]
+      // Tự động set màu
+      selected.color = variant.color
+      console.log('✅ Auto-selected color:', variant.color)
+    }
+  }
+  
+  // Trường hợp 3: Chỉ chọn color
+  else if (!selected.size && selected.color) {
+    const variantsWithColor = product.variants.filter(v => v.color === selected.color)
+    if (variantsWithColor.length > 0) {
+      // Ưu tiên variant còn hàng
+      variant = variantsWithColor.find(v => v.inventory?.quantity > 0) || variantsWithColor[0]
+      // Tự động set size
+      selected.size = variant.size
+      console.log('✅ Auto-selected size:', variant.size)
+    }
+  }
+
+  // Nếu tìm được variant
   if (variant) {
     selected.variantId = variant.id
     selected.quantity = 1
+    
+    // Kiểm tra tồn kho
+    const stock = variant.inventory?.quantity || 0
+    if (stock <= 0) {
+      console.warn('⚠️ Selected variant is OUT OF STOCK:', {
+        variant_id: variant.id,
+        size: variant.size,
+        color: variant.color
+      })
+    } else {
+      console.log('✅ Selected variant has stock:', stock)
+    }
   } else {
-    // Nếu không tìm thấy variant phù hợp, thử tìm variant đầu tiên có tồn kho
-    const firstAvailableVariant = product.variants.find(v => v.inventory?.quantity > 0)
-    if (firstAvailableVariant) {
-      selected.variantId = firstAvailableVariant.id
-      selected.size = firstAvailableVariant.size
-      selected.color = firstAvailableVariant.color
-      selected.quantity = 1
-    } else if (product.variants[0]) {
-      // Fallback: lấy variant đầu tiên
-      selected.variantId = product.variants[0].id
-      selected.size = product.variants[0].size
-      selected.color = product.variants[0].color
+    // Fallback: lấy variant đầu tiên
+    console.warn('⚠️ No matching variant found, using first variant')
+    variant = product.variants[0]
+    if (variant) {
+      selected.variantId = variant.id
+      selected.size = variant.size
+      selected.color = variant.color
       selected.quantity = 1
     } else {
       selected.variantId = null
@@ -379,6 +494,62 @@ function handleImageError(event) {
 function viewProduct(product) {
   emit('view-product', product)
 }
+
+// Helper function để lấy các màu có sẵn cho size đã chọn
+function getAvailableColorsForSize(product, size) {
+  if (!size || !product.variants || product.variants.length === 0) {
+    return product.available_colors || []
+  }
+  
+  // Lấy tất cả variants có size này
+  const variantsWithSize = product.variants.filter(v => v.size === size)
+  const colors = variantsWithSize.map(v => v.color).filter(Boolean)
+  
+  console.log(`🎨 Colors available for size "${size}":`, colors)
+  
+  return [...new Set(colors)]
+}
+
+// Helper function để hiển thị stock label cho màu của size cụ thể
+function getColorStockLabelForSize(product, size, color) {
+  if (!product.variants || product.variants.length === 0) return ''
+  
+  // Tìm variant có size và color cụ thể
+  const variant = product.variants.find(v => v.size === size && v.color === color)
+  if (!variant) return '(Không có)'
+  
+  const stock = variant.inventory?.quantity || 0
+  return stock > 0 ? '' : '(Hết hàng)'
+}
+
+// Helper function để hiển thị stock label cho size
+function getSizeStockLabel(product, size) {
+  if (!product.variants || product.variants.length === 0) return ''
+  
+  // Lấy tất cả variants có size này
+  const variantsWithSize = product.variants.filter(v => v.size === size)
+  if (variantsWithSize.length === 0) return ''
+  
+  // Kiểm tra xem có variant nào còn hàng không
+  const hasStock = variantsWithSize.some(v => v.inventory?.quantity > 0)
+  
+  return hasStock ? '' : '(Hết hàng)'
+}
+
+// Helper function để hiển thị stock label cho color
+function getColorStockLabel(product, color) {
+  if (!product.variants || product.variants.length === 0) return ''
+  
+  // Lấy tất cả variants có màu này
+  const variantsWithColor = product.variants.filter(v => v.color === color)
+  if (variantsWithColor.length === 0) return ''
+  
+  // Kiểm tra xem có variant nào còn hàng không
+  const hasStock = variantsWithColor.some(v => v.inventory?.quantity > 0)
+  
+  return hasStock ? '' : '(Hết hàng)'
+}
+
 </script>
 
 <style scoped>
@@ -462,6 +633,29 @@ function viewProduct(product) {
   gap: 8px;
 }
 
+.out-of-stock-banner {
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .selector-group {
   display: flex;
   flex-direction: column;
@@ -495,6 +689,11 @@ function viewProduct(product) {
   cursor: pointer;
 }
 
+.quantity-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .quantity-controls input {
   width: 50px;
   height: 28px;
@@ -515,8 +714,14 @@ function viewProduct(product) {
   transition: background 0.2s ease;
 }
 
-.add-to-cart-btn:hover {
+.add-to-cart-btn:hover:not(:disabled) {
   background: #4338ca;
+}
+
+.add-to-cart-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .stock-info {

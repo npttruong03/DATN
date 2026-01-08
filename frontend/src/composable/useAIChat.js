@@ -6,7 +6,6 @@ export function useAIChat() {
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
   const chatbotApiUrl = 'https://chatbot.dinon.uk/api/v1/chat/message/stream'
-
   const isOpen = ref(false)
   const isTyping = ref(false)
   const messages = ref([])
@@ -19,6 +18,49 @@ export function useAIChat() {
   if (!sessionId) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     localStorage.setItem('chatbot_session_id', sessionId)
+  }
+
+  // Hàm reset session thủ công
+  const resetSession = () => {
+    // Tạo session_id mới
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    localStorage.setItem('chatbot_session_id', sessionId)
+    
+    // Xóa messages
+    messages.value.length = 0
+    
+    console.log('🔄 Session reset:', sessionId)
+  }
+
+  // Hàm set session_id tùy chỉnh
+  const setSessionId = (newSessionId) => {
+    if (!newSessionId || typeof newSessionId !== 'string') {
+      console.error('❌ Invalid session_id provided')
+      return false
+    }
+    
+    sessionId = newSessionId
+    localStorage.setItem('chatbot_session_id', sessionId)
+    
+    // Xóa messages để bắt đầu session mới
+    messages.value.length = 0
+    
+    console.log('🔧 Session ID set to:', sessionId)
+    return true
+  }
+
+  // Hàm get session_id hiện tại
+  const getCurrentSessionId = () => {
+    return sessionId
+  }
+
+  // Expose functions to window for easy access from browser console
+  if (typeof window !== 'undefined') {
+    window.chatbotSession = {
+      get: getCurrentSessionId,
+      set: setSessionId,
+      reset: resetSession
+    }
   }
 
   const normalizeText = (text) => text
@@ -120,39 +162,63 @@ export function useAIChat() {
             
             if (response.ok) {
               const inventoryData = await response.json()
-              console.log(`✅ Inventory for product ${product.id} (${product.name}):`, inventoryData.length, 'variants')
+              console.log(`✅ Inventory for product ${product.id} (${product.name}):`, inventoryData.length, 'items')
               
-              // Map inventory data vào variants
-              if (product.variants && Array.isArray(product.variants)) {
-                product.variants = product.variants.map(variant => {
-                  const inventoryItem = inventoryData.find(inv => inv.variant_id === variant.id)
-                  return {
-                    ...variant,
-                    inventory: inventoryItem ? {
-                      id: inventoryItem.id,
-                      quantity: inventoryItem.quantity || 0
-                    } : {
-                      quantity: 0
-                    }
+              // 🔥 FIX: Build variants từ inventory data
+              if (inventoryData && Array.isArray(inventoryData) && inventoryData.length > 0) {
+                product.variants = inventoryData.map(inv => ({
+                  id: inv.variant_id,
+                  color: inv.variant.color,
+                  size: inv.variant.size,
+                  price: inv.variant.price,
+                  sku: inv.variant.sku,
+                  product_id: inv.variant.product_id,
+                  inventory: {
+                    id: inv.id,
+                    quantity: inv.quantity || 0
                   }
-                })
+                }))
                 
-                // Log số lượng tồn kho
+                // 🔥 FIX: Extract available_sizes và available_colors
+                const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))]
+                const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))]
+                
+                product.available_sizes = uniqueSizes
+                product.available_colors = uniqueColors
+                product.default_size = uniqueSizes[0] || null
+                product.default_color = uniqueColors[0] || null
+                
                 const totalStock = product.variants.reduce((sum, v) => sum + (v.inventory?.quantity || 0), 0)
-                console.log(`   → Total stock: ${totalStock} units`)
+                console.log(`   ✅ Processed:`, {
+                  variants: product.variants.length,
+                  sizes: uniqueSizes,
+                  colors: uniqueColors,
+                  total_stock: totalStock
+                })
+              } else {
+                console.warn(`⚠️ No inventory data for product ${product.id}`)
+                product.variants = []
+                product.available_sizes = []
+                product.available_colors = []
               }
             } else {
               console.warn(`⚠️ Failed to fetch inventory for product ${product.id}`)
+              product.variants = []
+              product.available_sizes = []
+              product.available_colors = []
             }
           } catch (error) {
             console.error(`❌ Error fetching inventory for product ${product.id}:`, error)
+            product.variants = []
+            product.available_sizes = []
+            product.available_colors = []
           }
           
           return product
         })
       )
       
-      console.log('✅ All products fetched with inventory')
+      console.log('✅ All products fetched with inventory and variants')
       return productsWithInventory
     } catch (error) {
       console.error('❌ Error in fetchInventoryForProducts:', error)
@@ -299,6 +365,25 @@ export function useAIChat() {
                 
                 // Fetch inventory cho tất cả products
                 const productsWithInventory = await fetchInventoryForProducts(parsed.products)
+                
+                // 🔍 DEBUG: Kiểm tra data sau khi fetch
+                productsWithInventory.forEach((p, index) => {
+                  console.log(`📦 Product ${index + 1} ready for display:`, {
+                    id: p.id,
+                    name: p.name,
+                    variants_count: p.variants?.length || 0,
+                    available_sizes: p.available_sizes,
+                    available_colors: p.available_colors,
+                    default_size: p.default_size,
+                    default_color: p.default_color,
+                    first_variant: p.variants?.[0] ? {
+                      id: p.variants[0].id,
+                      size: p.variants[0].size,
+                      color: p.variants[0].color,
+                      stock: p.variants[0].inventory?.quantity
+                    } : 'NO VARIANTS'
+                  })
+                })
                 
                 // Thêm vào message để hiển thị ProductCard
                 messages.value[aiMessageIndex].products = productsWithInventory
@@ -595,6 +680,9 @@ export function useAIChat() {
     toggleChat,
     addWelcomeMessage,
     clearMessages,
+    resetSession,
+    setSessionId,
+    getCurrentSessionId,
     searchProducts,
     getAvailableCoupons,
     getActiveFlashSales,
